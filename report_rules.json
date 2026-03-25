@@ -1,30 +1,123 @@
-{
-  "hydration": {
-    "bands": {
-      "0-3": "Stable",
-      "4-6": "Compensating",
-      "7-10": "Stressed"
-    }
-  },
-  "gut": {
-    "bands": {
-      "0-3": "Stable",
-      "4-6": "Irritated",
-      "7-10": "Destabilized"
-    }
-  },
-  "muscle": {
-    "bands": {
-      "0-3": "Supported",
-      "4-6": "Fatiguing",
-      "7-10": "Breaking Down"
-    }
-  },
-  "metabolic": {
-    "bands": {
-      "0-3": "Balanced",
-      "4-6": "Strained",
-      "7-10": "Reactive"
-    }
-  }
-}
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, jsonify
+from werkzeug.utils import secure_filename
+from datetime import datetime
+import os, json, uuid
+
+from engine.report_engine import load_json, compute_summary_scores, build_locked_sections, render_pdf_report
+
+BASE_DIR = os.path.dirname(__file__)
+DATA_DIR = os.path.join(BASE_DIR, "data")
+CASE_DIR = os.path.join(DATA_DIR, "cases")
+REPORT_DIR = os.path.join(DATA_DIR, "reports")
+CONFIG_DIR = os.path.join(os.path.dirname(BASE_DIR), "config")
+
+for path in [CASE_DIR, REPORT_DIR]:
+    os.makedirs(path, exist_ok=True)
+
+app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = 1024 * 1024 * 500
+
+def make_case_id():
+    return datetime.utcnow().strftime("%Y%m%d") + "-" + uuid.uuid4().hex[:8]
+
+def save_uploads(files, folder):
+    saved = []
+    os.makedirs(folder, exist_ok=True)
+    for f in files:
+        if not f or not f.filename:
+            continue
+        filename = secure_filename(f.filename)
+        full = os.path.join(folder, filename)
+        f.save(full)
+        saved.append(filename)
+    return saved
+
+@app.route("/", methods=["GET", "POST"])
+def intake():
+    if request.method == "POST":
+        case_id = make_case_id()
+        case_folder = os.path.join(CASE_DIR, case_id)
+        uploads_folder = os.path.join(case_folder, "uploads")
+        os.makedirs(case_folder, exist_ok=True)
+
+        form = {
+            "submitted_at": datetime.utcnow().isoformat() + "Z",
+            "horse_name": request.form.get("horse_name",""),
+            "owner_name": request.form.get("owner_name",""),
+            "trainer_name": request.form.get("trainer_name",""),
+            "email": request.form.get("email",""),
+            "phone": request.form.get("phone",""),
+            "discipline": request.form.get("discipline",""),
+            "breed": request.form.get("breed",""),
+            "age": request.form.get("age",""),
+            "sex": request.form.get("sex",""),
+            "location": request.form.get("location",""),
+            "primary_question": request.form.get("primary_question",""),
+            "horse_story": request.form.get("horse_story",""),
+            "feed_program": request.form.get("feed_program",""),
+            "supplement_program": request.form.get("supplement_program",""),
+            "water_notes": request.form.get("water_notes",""),
+            "travel_notes": request.form.get("travel_notes",""),
+            "surface_notes": request.form.get("surface_notes",""),
+            "turnout_notes": request.form.get("turnout_notes",""),
+            "symptoms": request.form.getlist("symptoms"),
+            "review_flags": request.form.getlist("review_flags"),
+        }
+
+        form["files"] = {
+            "eye_photos": save_uploads(request.files.getlist("eye_photos"), os.path.join(uploads_folder, "eye_photos")),
+            "body_photos": save_uploads(request.files.getlist("body_photos"), os.path.join(uploads_folder, "body_photos")),
+            "videos": save_uploads(request.files.getlist("videos"), os.path.join(uploads_folder, "videos")),
+        }
+
+        scoring_template = load_json(os.path.join(CONFIG_DIR, "scoring_template.json"))
+        report_rules = load_json(os.path.join(CONFIG_DIR, "report_rules.json"))
+
+        form["scores"] = compute_summary_scores(form, scoring_template)
+        form["locked_sections"] = build_locked_sections(form, report_rules)
+        form["status"] = "New"
+
+        with open(os.path.join(case_folder, "case.json"), "w") as f:
+            json.dump(form, f, indent=2)
+
+        render_pdf_report(case_id, form, REPORT_DIR)
+        return redirect(url_for("case_detail", case_id=case_id))
+
+    return render_template("index.html")
+
+@app.route("/cases")
+def cases():
+    rows = []
+    if os.path.isdir(CASE_DIR):
+        for case_id in sorted(os.listdir(CASE_DIR), reverse=True):
+            case_json = os.path.join(CASE_DIR, case_id, "case.json")
+            if os.path.exists(case_json):
+                with open(case_json) as f:
+                    data = json.load(f)
+                rows.append({
+                    "case_id": case_id,
+                    "horse_name": data.get("horse_name",""),
+                    "discipline": data.get("discipline",""),
+                    "status": data.get("status","New"),
+                    "primary_question": data.get("primary_question",""),
+                    "submitted_at": data.get("submitted_at",""),
+                })
+    return render_template("cases.html", cases=rows)
+
+@app.route("/cases/<case_id>")
+def case_detail(case_id):
+    case_json = os.path.join(CASE_DIR, case_id, "case.json")
+    with open(case_json) as f:
+        data = json.load(f)
+    return render_template("case_detail.html", case_id=case_id, data=data)
+
+@app.route("/reports/<filename>")
+def reports(filename):
+    return send_from_directory(REPORT_DIR, filename)
+
+@app.route("/api/health")
+def health():
+    return jsonify({"ok": True, "service": "eti-locked-production-files"})
+
+if __name__ == "__main__":
+    app.run(debug=True)

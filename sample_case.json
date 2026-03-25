@@ -1,23 +1,10 @@
-# Locked Production Notes
+# Deployment Handoff
 
-This package is the locked production direction for ETI.
-
-## UI non-negotiables
-- One-page intake
-- Strong hero statement
-- Guided intake flow
-- Clear upload zones
-- Mobile and iPad friendly
-
-## PDF non-negotiables
-- Dense professional layout
-- Same score table location every time
-- Same section order every time
-- No missing sections
-- No condensed narrative
-
-## Operational non-negotiables
-- Keep raw uploads
-- Keep raw case JSON
-- Version the report logic
-- Admin review before release
+Recommended next implementation steps:
+1. Put the Flask app behind HTTPS.
+2. Move media to cloud object storage.
+3. Move case metadata to Postgres.
+4. Add authentication for the admin queue.
+5. Add email delivery for completed reports.
+6. Replace scaffold narrative text with live ETI section prompts.
+7. Add structured image/video analysis hooks.
