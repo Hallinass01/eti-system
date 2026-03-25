@@ -1,0 +1,10 @@
+# Deployment Handoff
+
+Recommended next implementation steps:
+1. Put the Flask app behind HTTPS.
+2. Move media to cloud object storage.
+3. Move case metadata to Postgres.
+4. Add authentication for the admin queue.
+5. Add email delivery for completed reports.
+6. Replace scaffold narrative text with live ETI section prompts.
+7. Add structured image/video analysis hooks.
