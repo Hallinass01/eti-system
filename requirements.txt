@@ -1,0 +1,1 @@
+Use Render with build command: pip install -r requirements.txt and start command: gunicorn app:app

@@ -1,0 +1,1 @@
+Templates must stay inside templates/. CSS must stay inside static/. Config must stay inside config/.
