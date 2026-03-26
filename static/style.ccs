@@ -213,6 +213,26 @@ button:hover{
 button:active{
   transform:translateY(1px);
 }
+html{
+  scroll-behavior:smooth;
+}
+
+.hero-cta{
+  display:inline-block;
+  margin-top:24px;
+  background:linear-gradient(180deg,#2563eb,#1d4ed8);
+  color:#ffffff;
+  text-decoration:none;
+  padding:16px 30px;
+  border-radius:12px;
+  font-size:17px;
+  font-weight:700;
+  box-shadow:0 10px 22px rgba(37,99,235,.22);
+}
+
+.hero-cta:hover{
+  background:linear-gradient(180deg,#1d4ed8,#1e40af);
+}
 
 .submit-row{
   text-align:center;
