@@ -238,3 +238,25 @@ html{
   text-align:center;
   margin-top:26px;
 }
+.section-divider{
+  height:1px;
+  background:linear-gradient(90deg, transparent, #d7e1ee, transparent);
+  margin:28px 0 26px;
+}
+
+.wide-label{
+  margin-bottom:18px;
+}
+
+.panel p{
+  line-height:1.65;
+}
+
+.panel ul{
+  padding-left:22px;
+  line-height:1.7;
+}
+
+.panel li{
+  margin-bottom:6px;
+}
