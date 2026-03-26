@@ -154,3 +154,67 @@ button{
 button:hover{
   background:#2563eb;
 }
+small{
+  display:block;
+  margin-top:8px;
+  color:#64748b;
+  font-size:13px;
+  line-height:1.5;
+}
+
+.checks label{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  background:#f8fafc;
+  border:1px solid #dbe3ef;
+  border-radius:12px;
+  padding:12px 14px;
+  font-weight:500;
+  color:#24324a;
+}
+
+.checks input[type="checkbox"]{
+  width:auto;
+  margin-top:2px;
+  transform:scale(1.15);
+}
+
+fieldset{
+  border:1px solid #d8e2ee;
+  border-radius:16px;
+  padding:18px;
+  margin-top:22px;
+  background:#fcfdff;
+}
+
+legend{
+  font-weight:700;
+  color:#16345f;
+  padding:0 8px;
+}
+
+button{
+  background:linear-gradient(180deg,#2563eb,#1d4ed8);
+  color:white;
+  border:none;
+  padding:16px 30px;
+  border-radius:12px;
+  font-size:17px;
+  font-weight:700;
+  cursor:pointer;
+  box-shadow:0 10px 22px rgba(37,99,235,.22);
+}
+
+button:hover{
+  background:linear-gradient(180deg,#1d4ed8,#1e40af);
+}
+
+button:active{
+  transform:translateY(1px);
+}
+
+.submit-row{
+  text-align:center;
+  margin-top:26px;
+}
