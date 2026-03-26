@@ -264,7 +264,9 @@ html{
   .checks{
     grid-template-columns:1fr;
   }
-
+  .trust-strip{
+    grid-template-columns:1fr;
+  }
   .page{
     padding:28px 14px 40px;
   }
@@ -298,7 +300,25 @@ html{
   }
 }
 }
+.trust-strip{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:14px;
+  margin:0 0 28px;
+}
 
+.trust-strip div{
+  background:rgba(255,255,255,.08);
+  color:#e5e7eb;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:14px;
+  padding:14px 16px;
+  text-align:center;
+  font-size:14px;
+  font-weight:600;
+  line-height:1.5;
+  box-shadow:0 8px 20px rgba(0,0,0,.16);
+}
 .panel li{
   margin-bottom:6px;
 }
