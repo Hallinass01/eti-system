@@ -64,7 +64,7 @@
   <p><strong>These are not isolated quirks. They are often part of a larger terrain pattern.</strong></p>
 </section>
     <form method="post" enctype="multipart/form-data" class="panel">
-      <div class="section-title">Horse Information</div>
+      <div class="section-title">Tell Us About Your Horse</div>
       <div class="grid four">
         <label>Horse Name<input name="horse_name" required></label>
         <label>Owner Name<input name="owner_name"></label>
@@ -86,12 +86,13 @@
         <label>Location<input name="location"></label>
       </div>
 
-      <div class="section-title">Primary Question</div>
-      <label class="wide-label">What is your horse doing that you do not like right now?
-        <textarea name="primary_question" rows="3"></textarea>
+      <div class="section-title">What Is Not Right?</div>
+      <label class="wide-label">What is your horse doing right now that you do not like, do not understand, or do not feel is normal?
+       <textarea name="primary_question" rows="3"></textarea>
+<small>Examples: stopping at fences, fading late, acting anxious, changing at shows, random off days, resistance, poor recovery, or just not feeling right.</small>
       </label>
 
-      <div class="section-title">Horse Story & Management</div>
+     <div class="section-title">What Have You Noticed Over Time?</div>
       <label class="wide-label">Horse Story
         <textarea name="horse_story" rows="5"></textarea>
       </label>
@@ -106,7 +107,7 @@
       </div>
 
       <fieldset>
-        <legend>Symptom Checklist</legend>
+        <legend>What Are You Seeing?</legend>
         <div class="checks">
           <label><input type="checkbox" name="symptoms" value="Random/phantom lameness"> Random / phantom lameness</label>
           <label><input type="checkbox" name="symptoms" value="Stopping at fences"> Stopping at fences</label>
@@ -118,7 +119,7 @@
       </fieldset>
 
       <fieldset>
-        <legend>Admin Review Flags</legend>
+        <legend>Internal Review Notes</legend>
         <div class="checks">
           <label><input type="checkbox" name="review_flags" value="Need better eye photos"> Need better eye photos</label>
           <label><input type="checkbox" name="review_flags" value="Need slow-motion video"> Need slow-motion video</label>
@@ -127,7 +128,7 @@
         </div>
       </fieldset>
 
-      <div class="section-title">Media Uploads</div>
+      <div class="section-title">Show Us the Horse</div>
       <div class="grid three">
         <label>Eye Photos<input type="file" name="eye_photos" multiple></label>
         <label>Body Photos<input type="file" name="body_photos" multiple></label>
