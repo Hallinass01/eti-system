@@ -257,6 +257,46 @@ html{
 .panel ul{
   padding-left:22px;
   line-height:1.7;
+@media (max-width:980px){
+  .grid.four,
+  .grid.three,
+  .grid.two,
+  .checks{
+    grid-template-columns:1fr;
+  }
+
+  .page{
+    padding:28px 14px 40px;
+  }
+
+  .panel{
+    padding:22px;
+    border-radius:18px;
+  }
+
+  .hero{
+    padding:28px 18px;
+  }
+
+  .hero h1{
+    font-size:34px;
+  }
+
+  .hero h2{
+    font-size:22px;
+  }
+
+  .hero p,
+  .hero li{
+    font-size:15px;
+  }
+
+  button,
+  .hero-cta{
+    width:100%;
+    text-align:center;
+  }
+}
 }
 
 .panel li{
