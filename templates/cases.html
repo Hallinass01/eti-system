@@ -9,14 +9,23 @@
 <body>
   <div class="page">
     <header class="hero compact">
-      <div class="eyebrow">EQUINE TERRAIN INSTITUTE</div>
-      <h1>Case Queue</h1>
-      <p>Standardized ETI submissions awaiting review or release.</p>
-    </header>
+  <div class="eyebrow">EQUINE TERRAIN INSTITUTE</div>
+  <h1>Case Review Queue</h1>
+  <p>
+    This is the active ETI case list. Each submission represents a horse entered into the
+    terrain review process and organized for interpretation, follow-up, and report development.
+  </p>
+</header>
 
     <div class="panel">
-      <table class="table">
-        <tr><th>Case ID</th><th>Horse</th><th>Discipline</th><th>Status</th><th>Primary Question</th><th>Submitted</th></tr>
+  <div class="section-title">Submitted Cases</div>
+  <p>
+    Use this page to review recently submitted horses, identify the presenting concern,
+    and move from intake to organized case interpretation.
+  </p>
+
+  <table class="table">
+        <tr><th>Case ID</th><th>Horse</th><th>Discipline</th><th>Status</th><th>Presenting Question</th><th>Submitted</th></tr>
         {% for c in cases %}
         <tr>
           <td><a href="/cases/{{ c.case_id }}">{{ c.case_id }}</a></td>
