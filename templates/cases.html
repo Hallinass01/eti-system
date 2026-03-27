@@ -46,6 +46,14 @@
     and move from intake to organized case interpretation.
   </p>
 
+  <div class="filter-bar">
+    <a href="/cases" class="filter-chip {% if not selected_status %}active{% endif %}">All</a>
+    <a href="/cases?status=New" class="filter-chip {% if selected_status == 'New' %}active{% endif %}">New</a>
+    <a href="/cases?status=In Review" class="filter-chip {% if selected_status == 'In Review' %}active{% endif %}">In Review</a>
+    <a href="/cases?status=Report Drafted" class="filter-chip {% if selected_status == 'Report Drafted' %}active{% endif %}">Report Drafted</a>
+    <a href="/cases?status=Complete" class="filter-chip {% if selected_status == 'Complete' %}active{% endif %}">Complete</a>
+  </div>
+
   <table class="table">
         <tr><th>Case ID</th><th>Horse</th><th>Discipline</th><th>Status</th><th>Presenting Question</th><th>Submitted</th></tr>
         {% for c in cases %}
