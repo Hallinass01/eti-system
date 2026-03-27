@@ -708,3 +708,15 @@ body{
 .nav a:hover{
   color:#ffffff;
 }
+.site-header{
+  display:block;
+}
+
+.site-header-inner{
+  min-height:60px;
+}
+
+.logo img{
+  height:34px;
+  width:auto;
+}
