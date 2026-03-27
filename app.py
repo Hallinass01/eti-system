@@ -193,12 +193,19 @@ def intake():
         return redirect(url_for("success"))
 
     return render_template("index.html")
-
 @app.route("/cases")
 def cases():
     selected_status = request.args.get("status", "").strip()
 
     rows = []
+    counts = {
+        "All": 0,
+        "New": 0,
+        "In Review": 0,
+        "Report Drafted": 0,
+        "Complete": 0,
+    }
+
     if os.path.isdir(CASE_DIR):
         for case_id in sorted(os.listdir(CASE_DIR), reverse=True):
             case_json = os.path.join(CASE_DIR, case_id, "case.json")
@@ -207,6 +214,10 @@ def cases():
                     data = json.load(f)
 
                 case_status = data.get("status", "New")
+
+                counts["All"] += 1
+                if case_status in counts:
+                    counts[case_status] += 1
 
                 if selected_status and case_status != selected_status:
                     continue
@@ -220,7 +231,12 @@ def cases():
                     "submitted_at": data.get("submitted_at", ""),
                 })
 
-    return render_template("cases.html", cases=rows, selected_status=selected_status)
+    return render_template(
+        "cases.html",
+        cases=rows,
+        selected_status=selected_status,
+        counts=counts
+    ))
 
 @app.route("/cases/<case_id>")
 def case_detail(case_id):
