@@ -116,6 +116,22 @@
       <p>New → In Review → Report Drafted → Complete</p>
     </div>
   </div>
+    <form method="post" action="/cases/{{ case_id }}/status" class="panel" style="margin-top:18px; padding:22px;">
+  <div class="section-title">Update Status</div>
+
+  <label>Choose New Status
+    <select name="status">
+      <option value="New" {% if data.status == "New" %}selected{% endif %}>New</option>
+      <option value="In Review" {% if data.status == "In Review" %}selected{% endif %}>In Review</option>
+      <option value="Report Drafted" {% if data.status == "Report Drafted" %}selected{% endif %}>Report Drafted</option>
+      <option value="Complete" {% if data.status == "Complete" %}selected{% endif %}>Complete</option>
+    </select>
+  </label>
+
+  <div class="submit-row">
+    <button type="submit">Update Case Status</button>
+  </div>
+</form>
 </div>
   </div>
 </body>
