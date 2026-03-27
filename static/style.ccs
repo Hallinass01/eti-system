@@ -640,3 +640,54 @@ body{
 .page{
   margin-top:10px;
 }
+.site-header{
+  width:100%;
+  padding:14px 0;
+  background:#0b1530;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  margin-bottom:20px;
+}
+
+.site-header-inner{
+  max-width:1120px;
+  margin:0 auto;
+  padding:0 22px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.logo img{
+  height:34px;
+  width:auto;
+  display:block;
+}
+
+.logo span{
+  font-weight:600;
+  font-size:14px;
+  color:#e2e8f0;
+  letter-spacing:.3px;
+}
+
+.nav{
+  display:flex;
+  gap:20px;
+}
+
+.nav a{
+  color:#cbd5f5;
+  text-decoration:none;
+  font-weight:600;
+  font-size:14px;
+}
+
+.nav a:hover{
+  color:#ffffff;
+}
