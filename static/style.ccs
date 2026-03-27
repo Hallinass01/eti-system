@@ -461,3 +461,49 @@ textarea::placeholder{
 .grid.three label small{
   margin-top:10px;
 }
+/* === ETI FINAL HOMEPAGE POLISH === */
+
+.panel{
+  overflow:hidden;
+}
+
+.hero,
+.panel{
+  backdrop-filter: blur(2px);
+}
+
+.section-title{
+  position:relative;
+}
+
+.section-title::after{
+  content:"";
+  display:block;
+  width:52px;
+  height:3px;
+  margin-top:10px;
+  border-radius:999px;
+  background:linear-gradient(90deg,#2563eb,#93c5fd);
+}
+
+.panel ul{
+  margin-top:10px;
+  margin-bottom:6px;
+}
+
+.panel li{
+  color:#334155;
+}
+
+.submit-row{
+  margin-top:24px;
+}
+
+.hero-cta,
+button{
+  letter-spacing:.2px;
+}
+
+p{
+  max-width:none;
+}
