@@ -8,11 +8,20 @@
 </head>
 <body>
   <header class="site-header">
-  <div class="site-header-inner">
-    <div class="logo">
-      <img src="{{ url_for('static', filename='eti-logo.png') }}" alt="ETI Logo">
-      <span>Equine Terrain Institute</span>
+    <div class="site-header-inner">
+      <div class="logo">
+        <img src="{{ url_for('static', filename='eti-logo.png') }}" alt="ETI Logo">
+        <span>Equine Terrain Institute</span>
+      </div>
+
+      <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/cases">Cases</a>
+      </nav>
     </div>
+  </header>
+
+  <div class="page">
 
     <nav class="nav">
       <a href="/">Home</a>
