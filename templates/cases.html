@@ -78,7 +78,12 @@
           <td>{{ c.discipline }}</td>
          <td><span class="status-badge status-{{ c.status|lower|replace(' ', '-') }}">{{ c.status }}</span></td>
           <td>{{ c.primary_question }}</td>
-          <td>{{ c.submitted_at }}</td>
+          <td>
+  <div class="timestamp-block">
+    <div class="timestamp-label">Submitted</div>
+    <div class="timestamp-value">{{ c.submitted_at }}</div>
+  </div>
+</td>
         </tr>
         {% endfor %}
       </table>
