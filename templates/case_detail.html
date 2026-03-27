@@ -15,7 +15,9 @@
     {{ data.discipline }} · Case ID {{ case_id }}
   </p>
 </header>
-
+   <div class="submit-row" style="text-align:left; margin:0 0 18px;">
+  <a href="/cases" class="hero-cta" style="padding:12px 20px; font-size:15px;">← Back to Case Queue</a>
+</div>
     <div class="panel case-summary">
   <div class="section-title">Case Summary</div>
 
@@ -52,10 +54,15 @@
 <div class="panel">
   <div class="section-title">Next Action</div>
   <p>
-    Continue reviewing this case, return to the active case queue, or use the report file as the structured starting point for ETI interpretation.
+    Continue reviewing this case, return to the active case queue, or use the report file as the
+    structured starting point for ETI interpretation and follow-up.
   </p>
 
   <div class="submit-row">
+    <a href="/reports/{{ case_id }}.txt" class="hero-cta">Download Case Report</a>
+  </div>
+
+  <div class="submit-row" style="margin-top:14px;">
     <a href="/cases" class="hero-cta">Return to Case Queue</a>
   </div>
 </div>
