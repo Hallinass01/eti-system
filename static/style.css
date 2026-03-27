@@ -801,3 +801,6 @@ body{
   color:#1d4ed8;
   border-color:#93c5fd;
 }
+.filter-chip{
+  white-space:nowrap;
+}
