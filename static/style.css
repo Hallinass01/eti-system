@@ -754,3 +754,19 @@ body{
   color:#166534;
   border-color:#bbf7d0;
 }
+.case-highlight{
+  background:#f8fbff;
+  border:1px solid #dbe3ef;
+  border-radius:16px;
+  padding:18px;
+  margin-top:18px;
+  box-shadow:0 4px 10px rgba(15,23,42,.04);
+}
+
+.case-highlight p{
+  margin:0 0 10px;
+}
+
+.case-highlight p:last-child{
+  margin-bottom:0;
+}
