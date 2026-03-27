@@ -70,13 +70,14 @@
 </div>
 
   <table class="table">
-        <tr><th>Case ID</th><th>Horse</th><th>Discipline</th><th>Status</th><th>Presenting Question</th><th>Submitted</th></tr>
+        <tr><th>Case ID</th><th>Horse</th><th>Discipline</th><th>Status</th><th>Priority</th><th>Presenting Question</th><th>Submitted</th></tr>
         {% for c in cases %}
         <tr>
           <td><a href="/cases/{{ c.case_id }}">{{ c.case_id }}</a></td>
           <td>{{ c.horse_name }}</td>
           <td>{{ c.discipline }}</td>
          <td><span class="status-badge status-{{ c.status|lower|replace(' ', '-') }}">{{ c.status }}</span></td>
+          <td><span class="priority-badge priority-{{ c.priority|lower|replace(' ', '-') }}">{{ c.priority }}</span></td>
           <td>{{ c.primary_question }}</td>
           <td>
   <div class="timestamp-block">
