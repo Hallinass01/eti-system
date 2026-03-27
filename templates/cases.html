@@ -39,12 +39,27 @@
   </p>
 </header>
 
-    <div class="panel">
-  <div class="section-title">Submitted Cases</div>
-  <p>
-    Use this page to review recently submitted horses, identify the presenting concern,
-    and move from intake to organized case interpretation.
-  </p>
+    <div class="summary-strip">
+  <div class="summary-card">
+    <div class="summary-label">Total Cases</div>
+    <div class="summary-value">{{ counts['All'] }}</div>
+  </div>
+
+  <div class="summary-card">
+    <div class="summary-label">Needs Attention</div>
+    <div class="summary-value">{{ counts['New'] + counts['In Review'] }}</div>
+  </div>
+
+  <div class="summary-card">
+    <div class="summary-label">Drafted</div>
+    <div class="summary-value">{{ counts['Report Drafted'] }}</div>
+  </div>
+
+  <div class="summary-card">
+    <div class="summary-label">Complete</div>
+    <div class="summary-value">{{ counts['Complete'] }}</div>
+  </div>
+</div>
 
   <div class="filter-bar">
   <a href="/cases" class="filter-chip {% if not selected_status %}active{% endif %}">All ({{ counts['All'] }})</a>
