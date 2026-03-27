@@ -273,8 +273,9 @@ html{
   padding-left:22px;
   line-height:1.7;
 @media (max-width:980px){
-    .framework-grid{
-    grid-template-columns:1fr;
+      .framework-grid{
+    grid-template-columns:1fr;  .summary-strip{
+    grid-template-columns:1fr 1fr;
   }
   .grid.four,
   .grid.three,
