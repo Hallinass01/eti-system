@@ -602,6 +602,23 @@ p{
   display:flex;
   align-items:center;
   justify-content:space-between;
+  gap:20px;
+}
+
+.logo{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo span{
+  display:block;
+}
+
+.nav{
+  display:flex;
+  gap:20px;
+  align-items:center;
 }
 
 .logo{
