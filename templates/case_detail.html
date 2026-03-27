@@ -16,7 +16,7 @@
   </p>
 </header>
 
-    <div class="panel">
+    <div class="panel case-summary">
   <div class="section-title">Case Summary</div>
 
   <div class="grid two">
@@ -35,11 +35,15 @@
 
   <div class="section-divider"></div>
 
+  <div class="case-highlight">
   <p><b>Presenting Question:</b></p>
   <p>{{ data.primary_question }}</p>
+</div>
 
+<div class="case-highlight">
   <p><b>Horse Story:</b></p>
   <p>{{ data.horse_story }}</p>
+</div>
 
   <div class="submit-row">
     <a href="/reports/{{ case_id }}.txt" class="hero-cta">Download Case Report</a>
