@@ -585,3 +585,58 @@ p{
 .case-summary + .panel{
   margin-top:6px;
 }
+/* === ETI HEADER === */
+
+.site-header{
+  width:100%;
+  padding:14px 0;
+  background:#0b1530;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  margin-bottom:20px;
+}
+
+.site-header-inner{
+  max-width:1120px;
+  margin:0 auto;
+  padding:0 22px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.logo{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  color:#e5e7eb;
+  font-weight:700;
+  font-size:15px;
+}
+
+.logo img{
+  height:34px;
+  width:auto;
+}
+
+.nav{
+  display:flex;
+  gap:20px;
+}
+
+.nav a{
+  color:#cbd5f5;
+  text-decoration:none;
+  font-weight:600;
+  font-size:14px;
+}
+
+.nav a:hover{
+  color:#ffffff;
+}
+body{
+  margin:0;
+}
+
+.page{
+  margin-top:10px;
+}
