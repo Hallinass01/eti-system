@@ -185,6 +185,7 @@ def intake():
         form["scores"] = compute_scores(form, scoring_template)
         form["locked_sections"] = build_locked_sections(form)
         form["status"] = "New"
+        form["priority"] = "Standard"
 
         with open(os.path.join(case_folder, "case.json"), "w", encoding="utf-8") as f:
             json.dump(form, f, indent=2)
