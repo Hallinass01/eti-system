@@ -196,6 +196,8 @@ def intake():
 
 @app.route("/cases")
 def cases():
+    selected_status = request.args.get("status", "").strip()
+
     rows = []
     if os.path.isdir(CASE_DIR):
         for case_id in sorted(os.listdir(CASE_DIR), reverse=True):
@@ -203,15 +205,22 @@ def cases():
             if os.path.exists(case_json):
                 with open(case_json, "r", encoding="utf-8") as f:
                     data = json.load(f)
+
+                case_status = data.get("status", "New")
+
+                if selected_status and case_status != selected_status:
+                    continue
+
                 rows.append({
                     "case_id": case_id,
                     "horse_name": data.get("horse_name", ""),
                     "discipline": data.get("discipline", ""),
-                    "status": data.get("status", "New"),
+                    "status": case_status,
                     "primary_question": data.get("primary_question", ""),
                     "submitted_at": data.get("submitted_at", ""),
                 })
-    return render_template("cases.html", cases=rows)
+
+    return render_template("cases.html", cases=rows, selected_status=selected_status)
 
 @app.route("/cases/<case_id>")
 def case_detail(case_id):
