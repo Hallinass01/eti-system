@@ -572,3 +572,16 @@ p{
 .case-highlight p:last-child{
   margin-bottom:0;
 }
+.panel .submit-row{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:12px;
+}
+
+.panel .hero-cta{
+  text-align:center;
+}
+.case-summary + .panel{
+  margin-top:6px;
+}
