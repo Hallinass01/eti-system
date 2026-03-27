@@ -97,7 +97,26 @@
     <a href="/cases" class="hero-cta">Return to Case Queue</a>
   </div>
 </div>
-  
+  <div class="panel">
+  <div class="section-title">Workflow Status</div>
+
+  <p>
+    This case can move through the ETI review process in stages. Use the current status
+    as the operating reference for where the case stands right now.
+  </p>
+
+  <div class="grid two">
+    <div class="case-highlight">
+      <p><b>Current Status:</b></p>
+      <p><span class="status-badge status-{{ data.status|lower|replace(' ', '-') }}">{{ data.status }}</span></p>
+    </div>
+
+    <div class="case-highlight">
+      <p><b>Workflow Stages:</b></p>
+      <p>New → In Review → Report Drafted → Complete</p>
+    </div>
+  </div>
+</div>
   </div>
 </body>
 </html>
