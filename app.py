@@ -229,7 +229,9 @@ def reports(filename):
 @app.route("/api/health")
 def health():
     return jsonify({"ok": True, "service": "eti-clean-render-package"})
-
+@app.route("/success")
+def success():
+    return render_template("success.html")
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
