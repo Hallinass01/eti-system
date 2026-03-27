@@ -514,3 +514,61 @@ p{
 .hero-cta{
   min-width:240px;
 }
+.table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  overflow:hidden;
+  border-radius:16px;
+  background:#ffffff;
+  box-shadow:0 6px 16px rgba(15,23,42,.06);
+}
+
+.table th{
+  background:#16345f;
+  color:#ffffff;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:.2px;
+  padding:14px 12px;
+}
+
+.table td{
+  padding:14px 12px;
+  border-bottom:1px solid #e2e8f0;
+  color:#334155;
+  vertical-align:top;
+}
+
+.table tr:last-child td{
+  border-bottom:none;
+}
+
+.table tr:hover td{
+  background:#f8fbff;
+}
+
+.table a{
+  color:#1d4ed8;
+  font-weight:700;
+  text-decoration:none;
+}
+
+.table a:hover{
+  text-decoration:underline;
+}
+.case-summary p{
+  margin:0 0 10px;
+}
+
+.case-highlight{
+  background:#f8fbff;
+  border:1px solid #dbe3ef;
+  border-radius:16px;
+  padding:18px;
+  margin-top:18px;
+}
+
+.case-highlight p:last-child{
+  margin-bottom:0;
+}
