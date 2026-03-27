@@ -43,8 +43,8 @@
   <div class="eyebrow">EQUINE TERRAIN INSTITUTE</div>
   <h1>Case Review: {{ data.horse_name }}</h1>
   <p>
-    {{ data.discipline }} · Case ID {{ case_id }}
-  </p>
+  {{ data.discipline }} · Case ID {{ case_id }} · <span class="status-badge">{{ data.status }}</span>
+</p>
 </header>
    <div class="submit-row" style="text-align:left; margin:0 0 18px;">
   <a href="/cases" class="hero-cta" style="padding:12px 20px; font-size:15px;">← Back to Case Queue</a>
