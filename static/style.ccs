@@ -507,3 +507,10 @@ button{
 p{
   max-width:none;
 }
+.submit-row + .submit-row{
+  margin-top:14px;
+}
+
+.hero-cta{
+  min-width:240px;
+}
