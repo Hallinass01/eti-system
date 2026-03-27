@@ -446,3 +446,18 @@ textarea::placeholder{
   font-size:15px;
   line-height:1.65;
 }
+.grid.three label{
+  background:#f8fbff;
+  border:1px solid #dbe3ef;
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 4px 10px rgba(15,23,42,.04);
+}
+
+.grid.three label input[type="file"]{
+  margin-top:12px;
+}
+
+.grid.three label small{
+  margin-top:10px;
+}
