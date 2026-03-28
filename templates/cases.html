@@ -61,7 +61,15 @@
     <div class="summary-value">{{ counts['Complete'] }}</div>
   </div>
 </div>
+<form method="get" action="/cases" class="search-bar">
+  <input type="text" name="q" value="{{ search_query }}" placeholder="Search by horse, owner, trainer, discipline, question, status, or priority">
 
+  {% if selected_status %}
+    <input type="hidden" name="status" value="{{ selected_status }}">
+  {% endif %}
+
+  <button type="submit">Search Cases</button>
+</form>
   <div class="filter-bar">
   <a href="/cases" class="filter-chip {% if not selected_status %}active{% endif %}">All ({{ counts['All'] }})</a>
   <a href="/cases?status=New" class="filter-chip {% if selected_status == 'New' %}active{% endif %}">New ({{ counts['New'] }})</a>
