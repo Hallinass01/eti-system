@@ -242,9 +242,9 @@ def cases():
 
 @app.route("/cases/<case_id>")
 def case_detail(case_id):
-    @app.route("/cases/<case_id>/status", methods=["POST"])
+@app.route("/cases/<case_id>/status", methods=["POST"])
 def update_case_status(case_id):
-    @app.route("/cases/<case_id>/priority", methods=["POST"])
+@app.route("/cases/<case_id>/priority", methods=["POST"])
 def update_case_priority(case_id):
     case_json = os.path.join(CASE_DIR, case_id, "case.json")
     if not os.path.exists(case_json):
