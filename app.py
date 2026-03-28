@@ -228,6 +228,7 @@ def cases():
                     "horse_name": data.get("horse_name", ""),
                     "discipline": data.get("discipline", ""),
                     "status": case_status,
+                    "priority": data.get("priority", "Standard"),
                     "primary_question": data.get("primary_question", ""),
                     "submitted_at": data.get("submitted_at", ""),
                 })
