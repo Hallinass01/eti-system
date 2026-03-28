@@ -856,3 +856,36 @@ body{
   color:#334155;
   word-break:break-word;
 }
+.priority-badge{
+  display:inline-block;
+  padding:7px 12px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.2px;
+  border:1px solid transparent;
+}
+
+.priority-standard{
+  background:#f1f5f9;
+  color:#334155;
+  border-color:#dbe3ef;
+}
+
+.priority-watch-closely{
+  background:#fef3c7;
+  color:#854d0e;
+  border-color:#fde68a;
+}
+
+.priority-priority{
+  background:#fee2e2;
+  color:#991b1b;
+  border-color:#fecaca;
+}
+
+.priority-urgent{
+  background:#dc2626;
+  color:#ffffff;
+  border-color:#b91c1c;
+}
