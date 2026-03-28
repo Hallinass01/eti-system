@@ -197,6 +197,7 @@ def intake():
 @app.route("/cases")
 def cases():
     selected_status = request.args.get("status", "").strip()
+    search_query = request.args.get("q", "").strip().lower()
 
     rows = []
     counts = {
@@ -215,6 +216,12 @@ def cases():
                     data = json.load(f)
 
                 case_status = data.get("status", "New")
+                case_priority = data.get("priority", "Standard")
+                horse_name = data.get("horse_name", "")
+                owner_name = data.get("owner_name", "")
+                trainer_name = data.get("trainer_name", "")
+                discipline = data.get("discipline", "")
+                primary_question = data.get("primary_question", "")
 
                 counts["All"] += 1
                 if case_status in counts:
@@ -223,13 +230,27 @@ def cases():
                 if selected_status and case_status != selected_status:
                     continue
 
+                haystack = " ".join([
+                    case_id,
+                    horse_name,
+                    owner_name,
+                    trainer_name,
+                    discipline,
+                    primary_question,
+                    case_status,
+                    case_priority,
+                ]).lower()
+
+                if search_query and search_query not in haystack:
+                    continue
+
                 rows.append({
                     "case_id": case_id,
-                    "horse_name": data.get("horse_name", ""),
-                    "discipline": data.get("discipline", ""),
+                    "horse_name": horse_name,
+                    "discipline": discipline,
                     "status": case_status,
-                    "priority": data.get("priority", "Standard"),
-                    "primary_question": data.get("primary_question", ""),
+                    "priority": case_priority,
+                    "primary_question": primary_question,
                     "submitted_at": data.get("submitted_at", ""),
                 })
 
@@ -237,7 +258,8 @@ def cases():
         "cases.html",
         cases=rows,
         selected_status=selected_status,
-        counts=counts
+        counts=counts,
+        search_query=search_query
     )
 
 @app.route("/cases/<case_id>")
