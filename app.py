@@ -238,7 +238,7 @@ def cases():
         cases=rows,
         selected_status=selected_status,
         counts=counts
-    ))
+    )
 
 @app.route("/cases/<case_id>")
 def case_detail(case_id):
