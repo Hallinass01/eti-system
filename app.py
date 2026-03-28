@@ -261,17 +261,41 @@ def cases():
         counts=counts,
         search_query=search_query
     )
-
 @app.route("/cases/<case_id>")
 def case_detail(case_id):
     case_json = os.path.join(CASE_DIR, case_id, "case.json")
     if not os.path.exists(case_json):
         return "Case not found", 404
+
     with open(case_json, "r", encoding="utf-8") as f:
         data = json.load(f)
+
     return render_template("case_detail.html", case_id=case_id, data=data)
+
+
 @app.route("/cases/<case_id>/status", methods=["POST"])
 def update_case_status(case_id):
+    case_json = os.path.join(CASE_DIR, case_id, "case.json")
+    if not os.path.exists(case_json):
+        return "Case not found", 404
+
+    with open(case_json, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    new_status = request.form.get("status", "New")
+    allowed_statuses = ["New", "In Review", "Report Drafted", "Complete"]
+
+    if new_status not in allowed_statuses:
+        new_status = "New"
+
+    data["status"] = new_status
+
+    with open(case_json, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+    return redirect(url_for("case_detail", case_id=case_id))
+
+
 @app.route("/cases/<case_id>/priority", methods=["POST"])
 def update_case_priority(case_id):
     case_json = os.path.join(CASE_DIR, case_id, "case.json")
@@ -293,52 +317,6 @@ def update_case_priority(case_id):
         json.dump(data, f, indent=2)
 
     return redirect(url_for("case_detail", case_id=case_id))
-    @app.route("/cases/<case_id>/priority", methods=["POST"])
-def update_case_priority(case_id):
-    case_json = os.path.join(CASE_DIR, case_id, "case.json")
-    if not os.path.exists(case_json):
-        return "Case not found", 404
-
-    with open(case_json, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    new_priority = request.form.get("priority", "Standard")
-    allowed_priorities = ["Standard", "Watch Closely", "Priority", "Urgent"]
-
-    if new_priority not in allowed_priorities:
-        new_priority = "Standard"
-
-    data["priority"] = new_priority
-
-    with open(case_json, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-
-    return redirect(url_for("case_detail", case_id=case_id))
-    case_json = os.path.join(CASE_DIR, case_id, "case.json")
-    if not os.path.exists(case_json):
-        return "Case not found", 404
-
-    with open(case_json, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    new_status = request.form.get("status", "New")
-    allowed_statuses = ["New", "In Review", "Report Drafted", "Complete"]
-
-    if new_status not in allowed_statuses:
-        new_status = "New"
-
-    data["status"] = new_status
-
-    with open(case_json, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-
-    return redirect(url_for("case_detail", case_id=case_id))
-    case_json = os.path.join(CASE_DIR, case_id, "case.json")
-    if not os.path.exists(case_json):
-        return "Case not found", 404
-    with open(case_json, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    return render_template("case_detail.html", case_id=case_id, data=data)
 
 @app.route("/reports/<filename>")
 def reports(filename):
