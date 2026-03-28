@@ -70,7 +70,7 @@
 </div>
 
   <table class="table">
-        <tr><th>Case ID</th><th>Horse</th><th>Discipline</th><th>Status</th><th>Priority</th><th>Presenting Question</th><th>Submitted</th></tr>
+        <tr><th>Case ID</th><th>Horse</th><th>Discipline</th><th>Workflow</th><th>Presenting Question</th><th>Submitted</th></tr>
         {% for c in cases %}
         <tr>
           <td><a href="/cases/{{ c.case_id }}">{{ c.case_id }}</a></td>
