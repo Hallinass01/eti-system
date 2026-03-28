@@ -43,7 +43,9 @@
   <div class="eyebrow">EQUINE TERRAIN INSTITUTE</div>
   <h1>Case Review: {{ data.horse_name }}</h1>
   <p>
-  {{ data.discipline }} · Case ID {{ case_id }} · <span class="status-badge status-{{ data.status|lower|replace(' ', '-') }}">{{ data.status }}</span>
+  {{ data.discipline }} · Case ID {{ case_id }} ·
+  <span class="status-badge status-{{ data.status|lower|replace(' ', '-') }}">{{ data.status }}</span> ·
+  <span class="priority-badge priority-{{ data.priority|lower|replace(' ', '-') }}">{{ data.priority }}</span>
 </p>
 </header>
    <div class="submit-row" style="text-align:left; margin:0 0 18px;">
