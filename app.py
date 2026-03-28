@@ -264,6 +264,12 @@ def cases():
 
 @app.route("/cases/<case_id>")
 def case_detail(case_id):
+    case_json = os.path.join(CASE_DIR, case_id, "case.json")
+    if not os.path.exists(case_json):
+        return "Case not found", 404
+    with open(case_json, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return render_template("case_detail.html", case_id=case_id, data=data)
 @app.route("/cases/<case_id>/status", methods=["POST"])
 def update_case_status(case_id):
 @app.route("/cases/<case_id>/priority", methods=["POST"])
