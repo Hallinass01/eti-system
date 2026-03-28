@@ -109,6 +109,22 @@
   </p>
 
   <div class="grid two">
+    <form method="post" action="/cases/{{ case_id }}/priority" class="panel" style="margin-top:18px; padding:22px;">
+  <div class="section-title">Update Priority</div>
+
+  <label>Choose New Priority
+    <select name="priority">
+      <option value="Standard" {% if data.priority == "Standard" %}selected{% endif %}>Standard</option>
+      <option value="Watch Closely" {% if data.priority == "Watch Closely" %}selected{% endif %}>Watch Closely</option>
+      <option value="Priority" {% if data.priority == "Priority" %}selected{% endif %}>Priority</option>
+      <option value="Urgent" {% if data.priority == "Urgent" %}selected{% endif %}>Urgent</option>
+    </select>
+  </label>
+
+  <div class="submit-row">
+    <button type="submit">Update Case Priority</button>
+  </div>
+</form>
     <div class="case-highlight">
       <p><b>Current Status:</b></p>
       <p><span class="status-badge status-{{ data.status|lower|replace(' ', '-') }}">{{ data.status }}</span></p>
