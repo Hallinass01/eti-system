@@ -53,7 +53,25 @@
 </div>
     <div class="panel case-summary">
   <div class="section-title">Case Summary</div>
+<div class="panel">
+  <div class="section-title">Media</div>
 
+  <div class="media-grid">
+    {% for img in data.eye_photos %}
+      <img src="/uploads/{{ img }}" class="media-img">
+    {% endfor %}
+
+    {% for img in data.body_photos %}
+      <img src="/uploads/{{ img }}" class="media-img">
+    {% endfor %}
+
+    {% for vid in data.videos %}
+      <video controls class="media-video">
+        <source src="/uploads/{{ vid }}">
+      </video>
+    {% endfor %}
+  </div>
+</div>
   <div class="grid two">
     <div>
       <p><b>Owner:</b> {{ data.owner_name }}</p>
