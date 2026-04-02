@@ -8,14 +8,14 @@ import uuid
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def save_files(files):
-    paths = []
+    filenames = []
     for f in files:
         if f and f.filename:
             filename = f"{uuid.uuid4()}_{f.filename}"
             filepath = os.path.join(UPLOAD_FOLDER, filename)
             f.save(filepath)
-            paths.append(filepath)
-    return paths
+            filenames.append(filename)
+    return filenames
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CASE_DIR = os.path.join(BASE_DIR, "data", "cases")
 REPORT_DIR = os.path.join(BASE_DIR, "data", "reports")
