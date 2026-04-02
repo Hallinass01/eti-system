@@ -71,6 +71,33 @@
         <source src="/uploads/{{ vid }}">
       </video>
     {% endfor %}
+    <div class="panel">
+  <div class="section-title">Media</div>
+
+  <div class="media-grid">
+
+    {% if data.eye_photos %}
+      {% for img in data.eye_photos %}
+        <img src="{{ url_for('uploaded_file', filename=img) }}" class="media-img">
+      {% endfor %}
+    {% endif %}
+
+    {% if data.body_photos %}
+      {% for img in data.body_photos %}
+        <img src="{{ url_for('uploaded_file', filename=img) }}" class="media-img">
+      {% endfor %}
+    {% endif %}
+
+    {% if data.videos %}
+      {% for vid in data.videos %}
+        <video controls class="media-video">
+          <source src="{{ url_for('uploaded_file', filename=vid) }}">
+        </video>
+      {% endfor %}
+    {% endif %}
+
+  </div>
+</div>
   </div>
 </div>
   <div class="grid two">
