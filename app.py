@@ -5,6 +5,17 @@ import os
 import json
 import uuid
 
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+def save_files(files):
+    paths = []
+    for f in files:
+        if f and f.filename:
+            filename = f"{uuid.uuid4()}_{f.filename}"
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            f.save(filepath)
+            paths.append(filepath)
+    return paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CASE_DIR = os.path.join(BASE_DIR, "data", "cases")
 REPORT_DIR = os.path.join(BASE_DIR, "data", "reports")
@@ -148,6 +159,13 @@ def write_report(case_id: str, form: dict) -> str:
 @app.route("/", methods=["GET", "POST"])
 def intake():
     if request.method == "POST":
+        eye_files = request.files.getlist("eye_photos")
+        body_files = request.files.getlist("body_photos")
+        video_files = request.files.getlist("videos")
+
+        eye_paths = save_files(eye_files)
+        body_paths = save_files(body_files)
+        video_paths = save_files(video_files)
         case_id = make_case_id()
         case_folder = os.path.join(CASE_DIR, case_id)
         uploads_folder = os.path.join(case_folder, "uploads")
@@ -331,3 +349,6 @@ def success():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+@app.route("/uploads/<path:filename>")
+def uploaded_file(filename):
+    return send_from_directory(UPLOAD_FOLDER, filename)
