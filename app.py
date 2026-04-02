@@ -7,6 +7,7 @@ import uuid
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 def save_files(files):
     filenames = []
     for f in files:
@@ -194,9 +195,9 @@ def intake():
         }
 
         form["files"] = {
-            "eye_photos": save_uploads(request.files.getlist("eye_photos"), os.path.join(uploads_folder, "eye_photos")),
-            "body_photos": save_uploads(request.files.getlist("body_photos"), os.path.join(uploads_folder, "body_photos")),
-            "videos": save_uploads(request.files.getlist("videos"), os.path.join(uploads_folder, "videos")),
+            form["eye_photos"] = eye_paths
+            form["body_photos"] = body_paths
+            form["videos"] = video_paths
         }
 
         scoring_template = load_json(os.path.join(CONFIG_DIR, "scoring_template.json"))
