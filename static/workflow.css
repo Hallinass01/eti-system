@@ -29,4 +29,21 @@
   .search-bar button{
     width:100%;
   }
+  .media-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:12px;
+}
+
+.media-img{
+  width:100%;
+  border-radius:12px;
+  border:1px solid #dbe3ef;
+}
+
+  .media-video{
+  width:100%;
+  border-radius:12px;
+  border:1px solid #dbe3ef;
+}
 }
