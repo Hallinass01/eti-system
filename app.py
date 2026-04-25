@@ -217,9 +217,10 @@ def reports(filename):
     return send_from_directory(REPORT_DIR, filename)
 
 
-@app.route("/uploads/<path:filename>")
-def uploaded_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
+@app.route("/cases/<case_id>/uploads/<path:filename>")
+def case_upload(case_id, filename):
+    folder = os.path.join(CASE_DIR, case_id, "uploads")
+    return send_from_directory(folder, filename)
 
 
 @app.route("/success")
