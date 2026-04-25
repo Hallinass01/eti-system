@@ -88,32 +88,32 @@
 <div class="panel">
 <div class="section-title">Submitted Media</div>
 
-{% if data.files %}
+{% if data.eye_photos or data.body_photos or data.videos %}
 
 {% if data.eye_photos %}
 <h3>Eye Photos</h3>
 <div class="media-grid">
-{% for file in data.files.eye_photos %}
+{% for file in data.eye_photos %}
 <img class="media-img"
 src="{{ url_for('case_upload', case_id=case_id, filename=file) }}">
 {% endfor %}
 </div>
 {% endif %}
 
-{% if data.files.body_photos %}
+{% if data.body_photos %}
 <h3>Body Photos</h3>
 <div class="media-grid">
-{% for file in data.files.body_photos %}
+{% for file in data.body_photos %}
 <img class="media-img"
 src="{{ url_for('case_upload', case_id=case_id, filename=file) }}">
 {% endfor %}
 </div>
 {% endif %}
 
-{% if data.files.videos %}
+{% if data.videos %}
 <h3>Videos</h3>
 <div class="media-grid">
-{% for file in data.files.videos %}
+{% for file in data.videos %}
 <video class="media-video" controls>
 <source src="{{ url_for('case_upload', case_id=case_id, filename=file) }}">
 </video>
@@ -125,7 +125,7 @@ src="{{ url_for('case_upload', case_id=case_id, filename=file) }}">
 <p>No media uploaded for this case.</p>
 {% endif %}
 </div>
-
+  
 <!-- NEXT ACTION -->
 <div class="panel">
 <div class="section-title">Next Action</div>
