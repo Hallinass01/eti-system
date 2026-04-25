@@ -108,9 +108,9 @@
       <h3>Body Photos</h3>
       <div class="media-grid">
         {% for file in files.get('body_photos', []) %}
-          <img
-            class="media-img"
-            src="{{ url_for('case_upload', case_id=case_id, filename=file) }}"
+         <a href="{{ url_for('case_upload', case_id=case_id, filename=file) }}" target="_blank">
+  <img class="media-img"
+       src="{{ url_for('case_upload', case_id=case_id, filename=file) }}">
             alt="Body Photo">
         {% endfor %}
       </div>
