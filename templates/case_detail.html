@@ -115,6 +115,38 @@
     </div>
   {% endif %}
 </section>
+  <section class="card">
+  <h2>Submitted Media</h2>
+
+  {% if data.eye_images %}
+    <h3>Eye Images</h3>
+    <div class="media-grid">
+      {% for file in data.eye_images %}
+        <img class="media-img" src="{{ url_for('static', filename='uploads/' ~ file) }}">
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if data.body_photos %}
+    <h3>Body Photos</h3>
+    <div class="media-grid">
+      {% for file in data.body_photos %}
+        <img class="media-img" src="{{ url_for('static', filename='uploads/' ~ file) }}">
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if data.videos %}
+    <h3>Videos</h3>
+    <div class="media-grid">
+      {% for file in data.videos %}
+        <video class="media-video" controls>
+          <source src="{{ url_for('static', filename='uploads/' ~ file) }}">
+        </video>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
   <!-- MEDIA REVIEW -->
   <div class="panel">
     <div class="section-title">Media Review</div>
