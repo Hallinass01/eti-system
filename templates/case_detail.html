@@ -86,46 +86,51 @@
 
 <!-- SUBMITTED MEDIA -->
 <div class="panel">
-<div class="section-title">Submitted Media</div>
+  <div class="section-title">Submitted Media</div>
 
-{% if data.eye_photos or data.body_photos or data.videos %}
+  {% set files = data.get('files', {}) %}
 
-{% if data.eye_photos %}
-<h3>Eye Photos</h3>
-<div class="media-grid">
-{% for file in data.eye_photos %}
-<img class="media-img"
-src="{{ url_for('case_upload', case_id=case_id, filename=file) }}">
-{% endfor %}
-</div>
-{% endif %}
+  {% if files.get('eye_photos') or files.get('body_photos') or files.get('videos') %}
 
-{% if data.body_photos %}
-<h3>Body Photos</h3>
-<div class="media-grid">
-{% for file in data.body_photos %}
-<img class="media-img"
-src="{{ url_for('case_upload', case_id=case_id, filename=file) }}">
-{% endfor %}
-</div>
-{% endif %}
+    {% if files.get('eye_photos') %}
+      <h3>Eye Photos</h3>
+      <div class="media-grid">
+        {% for file in files.get('eye_photos', []) %}
+          <img
+            class="media-img"
+            src="{{ url_for('case_upload', case_id=case_id, filename=file) }}"
+            alt="Eye Photo">
+        {% endfor %}
+      </div>
+    {% endif %}
 
-{% if data.videos %}
-<h3>Videos</h3>
-<div class="media-grid">
-{% for file in data.videos %}
-<video class="media-video" controls>
-<source src="{{ url_for('case_upload', case_id=case_id, filename=file) }}">
-</video>
-{% endfor %}
-</div>
-{% endif %}
+    {% if files.get('body_photos') %}
+      <h3>Body Photos</h3>
+      <div class="media-grid">
+        {% for file in files.get('body_photos', []) %}
+          <img
+            class="media-img"
+            src="{{ url_for('case_upload', case_id=case_id, filename=file) }}"
+            alt="Body Photo">
+        {% endfor %}
+      </div>
+    {% endif %}
 
-{% else %}
-<p>No media uploaded for this case.</p>
-{% endif %}
-</div>
-  
+    {% if files.get('videos') %}
+      <h3>Videos</h3>
+      <div class="media-grid">
+        {% for file in files.get('videos', []) %}
+          <video class="media-video" controls preload="metadata">
+            <source src="{{ url_for('case_upload', case_id=case_id, filename=file) }}">
+          </video>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+  {% else %}
+    <p>No media uploaded for this case.</p>
+  {% endif %}
+</div>  
 <!-- NEXT ACTION -->
 <div class="panel">
 <div class="section-title">Next Action</div>
