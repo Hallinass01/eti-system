@@ -88,41 +88,34 @@
 <div class="panel">
 <div class="section-title">Submitted Media</div>
 
-{% if data.eye_images or data.eye_photos or data.body_photos or data.videos %}
+{% if data.files %}
 
-{% if data.eye_images %}
-<h3>Eye Images</h3>
+{% if data.files.eye_photos %}
+<h3>Eye Photos</h3>
 <div class="media-grid">
-{% for file in data.eye_images %}
-<img class="media-img" src="{{ url_for('uploaded_file', filename=file) }}">
+{% for file in data.files.eye_photos %}
+<img class="media-img"
+src="{{ url_for('case_upload', case_id=case_id, filename=file) }}">
 {% endfor %}
 </div>
 {% endif %}
 
-{% if data.eye_photos %}
-<h3>Eye Images</h3>
-<div class="media-grid">
-{% for file in data.eye_photos %}
-<img class="media-img" src="{{ url_for('uploaded_file', filename=file) }}">
-{% endfor %}
-</div>
-{% endif %}
-
-{% if data.body_photos %}
+{% if data.files.body_photos %}
 <h3>Body Photos</h3>
 <div class="media-grid">
-{% for file in data.body_photos %}
-<img class="media-img" src="{{ url_for('uploaded_file', filename=file) }}">
+{% for file in data.files.body_photos %}
+<img class="media-img"
+src="{{ url_for('case_upload', case_id=case_id, filename=file) }}">
 {% endfor %}
 </div>
 {% endif %}
 
-{% if data.videos %}
+{% if data.files.videos %}
 <h3>Videos</h3>
 <div class="media-grid">
-{% for file in data.videos %}
+{% for file in data.files.videos %}
 <video class="media-video" controls>
-<source src="{{ url_for('uploaded_file', filename=file) }}">
+<source src="{{ url_for('case_upload', case_id=case_id, filename=file) }}">
 </video>
 {% endfor %}
 </div>
@@ -161,10 +154,10 @@ Continue reviewing this case, return to the active case queue, or use the report
 
 <label>Choose New Priority</label>
 <select name="priority">
-<option value="Standard" {% if data.priority == "Standard" %}selected{% endif %}>Standard</option>
-<option value="Watch Closely" {% if data.priority == "Watch Closely" %}selected{% endif %}>Watch Closely</option>
-<option value="Priority" {% if data.priority == "Priority" %}selected{% endif %}>Priority</option>
-<option value="Urgent" {% if data.priority == "Urgent" %}selected{% endif %}>Urgent</option>
+<option value="Standard">Standard</option>
+<option value="Watch Closely">Watch Closely</option>
+<option value="Priority">Priority</option>
+<option value="Urgent">Urgent</option>
 </select>
 
 <div class="submit-row">
@@ -187,10 +180,10 @@ Continue reviewing this case, return to the active case queue, or use the report
 
 <label>Choose New Status</label>
 <select name="status">
-<option value="New" {% if data.status == "New" %}selected{% endif %}>New</option>
-<option value="In Review" {% if data.status == "In Review" %}selected{% endif %}>In Review</option>
-<option value="Report Drafted" {% if data.status == "Report Drafted" %}selected{% endif %}>Report Drafted</option>
-<option value="Complete" {% if data.status == "Complete" %}selected{% endif %}>Complete</option>
+<option value="New">New</option>
+<option value="In Review">In Review</option>
+<option value="Report Drafted">Report Drafted</option>
+<option value="Complete">Complete</option>
 </select>
 
 <div class="submit-row">
