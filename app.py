@@ -194,12 +194,16 @@ def intake():
             "review_flags": request.form.getlist("review_flags"),
         }
 
-        form["files"] = {
-            form["eye_photos"] = eye_paths
-            form["body_photos"] = body_paths
-            form["videos"] = video_paths
-        }
+        form["eye_photos"] = eye_paths
+        form["body_photos"] = body_paths
+        form["videos"] = video_paths
 
+        form["files"] = {
+            "eye_photos": eye_paths,
+            "body_photos": body_paths,
+            "videos": video_paths
+       }
+ 
         scoring_template = load_json(os.path.join(CONFIG_DIR, "scoring_template.json"))
         form["scores"] = compute_scores(form, scoring_template)
         form["locked_sections"] = build_locked_sections(form)
