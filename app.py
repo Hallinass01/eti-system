@@ -176,7 +176,17 @@ def intake():
 
 @app.route("/cases")
 def cases():
+    selected_status = request.args.get("status", "").strip()
+    search_query = request.args.get("q", "").strip().lower()
+
     rows = []
+    counts = {
+        "All": 0,
+        "New": 0,
+        "In Review": 0,
+        "Report Drafted": 0,
+        "Complete": 0,
+    }
 
     if os.path.isdir(CASE_DIR):
         for case_id in sorted(os.listdir(CASE_DIR), reverse=True):
@@ -186,41 +196,52 @@ def cases():
                 with open(case_json, "r", encoding="utf-8") as f:
                     data = json.load(f)
 
+                case_status = data.get("status", "New")
+                case_priority = data.get("priority", "Standard")
+                horse_name = data.get("horse_name", "")
+                owner_name = data.get("owner_name", "")
+                trainer_name = data.get("trainer_name", "")
+                discipline = data.get("discipline", "")
+                primary_question = data.get("primary_question", "")
+
+                counts["All"] += 1
+                if case_status in counts:
+                    counts[case_status] += 1
+
+                if selected_status and case_status != selected_status:
+                    continue
+
+                haystack = " ".join([
+                    case_id,
+                    horse_name,
+                    owner_name,
+                    trainer_name,
+                    discipline,
+                    primary_question,
+                    case_status,
+                    case_priority,
+                ]).lower()
+
+                if search_query and search_query not in haystack:
+                    continue
+
                 rows.append({
                     "case_id": case_id,
-                    "horse_name": data.get("horse_name", ""),
-                    "discipline": data.get("discipline", ""),
-                    "status": data.get("status", "New"),
-                    "priority": data.get("priority", "Standard"),
-                    "primary_question": data.get("primary_question", ""),
-                    "submitted_at": data.get("submitted_at", "")
+                    "horse_name": horse_name,
+                    "discipline": discipline,
+                    "status": case_status,
+                    "priority": case_priority,
+                    "primary_question": primary_question,
+                    "submitted_at": data.get("submitted_at", ""),
                 })
 
-    return render_template("cases.html", cases=rows)
-
-
-@app.route("/cases/<case_id>")
-def case_detail(case_id):
-    case_json = os.path.join(CASE_DIR, case_id, "case.json")
-
-    if not os.path.exists(case_json):
-        return "Case not found", 404
-
-    with open(case_json, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    return render_template("case_detail.html", case_id=case_id, data=data)
-
-
-@app.route("/reports/<filename>")
-def reports(filename):
-    return send_from_directory(REPORT_DIR, filename)
-
-
-@app.route("/cases/<case_id>/uploads/<path:filename>")
-def case_upload(case_id, filename):
-    folder = os.path.join(CASE_DIR, case_id, "uploads")
-    return send_from_directory(folder, filename)
+    return render_template(
+        "cases.html",
+        cases=rows,
+        selected_status=selected_status,
+        counts=counts,
+        search_query=search_query
+    )
 
 
 @app.route("/success")
