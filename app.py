@@ -267,7 +267,9 @@ def case_upload(case_id, filename):
     uploads_folder = os.path.join(CASE_DIR, case_id, "uploads")
     return send_from_directory(uploads_folder, filename)
 
-
+@app.route("/reports/<filename>")
+def report_file(filename):
+    return send_from_directory(REPORT_DIR, filename, as_attachment=True)
 @app.route("/success")
 def success():
     return render_template("success.html")
