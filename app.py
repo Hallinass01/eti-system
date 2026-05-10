@@ -4,11 +4,17 @@ from datetime import datetime
 import os
 import json
 import uuid
+import shutil
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
-CASE_DIR = os.path.join(BASE_DIR, "data", "cases")
-REPORT_DIR = os.path.join(BASE_DIR, "data", "reports")
+
+# Persistent storage path.
+# On Render, attach a Persistent Disk mounted at /var/data.
+PERSISTENT_DIR = os.environ.get("PERSISTENT_DIR", "/var/data")
+
+UPLOAD_FOLDER = os.path.join(PERSISTENT_DIR, "uploads")
+CASE_DIR = os.path.join(PERSISTENT_DIR, "cases")
+REPORT_DIR = os.path.join(PERSISTENT_DIR, "reports")
 CONFIG_DIR = os.path.join(BASE_DIR, "config")
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -193,8 +199,12 @@ def cases():
             case_json = os.path.join(CASE_DIR, case_id, "case.json")
 
             if os.path.exists(case_json):
-                with open(case_json, "r", encoding="utf-8") as f:
-                    data = json.load(f)
+                try:
+                    with open(case_json, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                except Exception as e:
+                    print(f"Failed loading case {case_id}: {e}")
+                    continue
 
                 case_status = data.get("status", "New")
                 case_priority = data.get("priority", "Standard")
@@ -267,9 +277,62 @@ def case_upload(case_id, filename):
     uploads_folder = os.path.join(CASE_DIR, case_id, "uploads")
     return send_from_directory(uploads_folder, filename)
 
+
 @app.route("/reports/<filename>")
 def report_file(filename):
     return send_from_directory(REPORT_DIR, filename, as_attachment=True)
+
+
+@app.route("/cases/<case_id>/status", methods=["POST"])
+def update_case_status(case_id):
+    case_json = os.path.join(CASE_DIR, case_id, "case.json")
+
+    if not os.path.exists(case_json):
+        return "Case not found", 404
+
+    with open(case_json, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    data["status"] = request.form.get("status", data.get("status", "New"))
+
+    with open(case_json, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+    return redirect(url_for("case_detail", case_id=case_id))
+
+
+@app.route("/cases/<case_id>/priority", methods=["POST"])
+def update_case_priority(case_id):
+    case_json = os.path.join(CASE_DIR, case_id, "case.json")
+
+    if not os.path.exists(case_json):
+        return "Case not found", 404
+
+    with open(case_json, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    data["priority"] = request.form.get("priority", data.get("priority", "Standard"))
+
+    with open(case_json, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+    return redirect(url_for("case_detail", case_id=case_id))
+
+
+@app.route("/cases/<case_id>/delete", methods=["POST"])
+def delete_case(case_id):
+    case_folder = os.path.join(CASE_DIR, case_id)
+    report_path = os.path.join(REPORT_DIR, f"{case_id}.txt")
+
+    if os.path.exists(case_folder):
+        shutil.rmtree(case_folder)
+
+    if os.path.exists(report_path):
+        os.remove(report_path)
+
+    return redirect(url_for("cases"))
+
+
 @app.route("/success")
 def success():
     return render_template("success.html")
