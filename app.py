@@ -243,7 +243,22 @@ def cases():
         search_query=search_query
     )
 
+@app.route("/cases/<case_id>")
+def case_detail(case_id):
+    case_folder = os.path.join(CASE_DIR, case_id)
+    case_json = os.path.join(case_folder, "case.json")
 
+    if not os.path.exists(case_json):
+        return "Case not found", 404
+
+    with open(case_json, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    return render_template(
+        "case_detail.html",
+        case_id=case_id,
+        case=data
+    )
 @app.route("/success")
 def success():
     return render_template("success.html")
