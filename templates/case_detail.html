@@ -28,67 +28,66 @@
 <div class="page">
 
 <header class="hero compact">
-<div class="eyebrow">EQUINE TERRAIN INSTITUTE</div>
+  <div class="eyebrow">EQUINE TERRAIN INSTITUTE</div>
 
-<h1>Case Review: {{ data.horse_name }}</h1>
+  <h1>Case Review: {{ case.get('horse_name', 'Unnamed Horse') }}</h1>
 
-<p>
-{{ data.discipline }} · Case ID {{ case_id }} ·
-<span class="status-badge status-{{ data.status|lower|replace(' ','-') }}">
-{{ data.status }}
-</span> ·
-<span class="priority-badge priority-{{ data.priority|lower|replace(' ','-') }}">
-{{ data.priority }}
-</span>
-</p>
+  <p>
+    {{ case.get('discipline', '') }} · Case ID {{ case_id }} ·
+    <span class="status-badge status-{{ case.get('status', 'New')|lower|replace(' ','-') }}">
+      {{ case.get('status', 'New') }}
+    </span> ·
+    <span class="priority-badge priority-{{ case.get('priority', 'Standard')|lower|replace(' ','-') }}">
+      {{ case.get('priority', 'Standard') }}
+    </span>
+  </p>
 </header>
 
 <div class="submit-row" style="text-align:left; margin:0 0 18px;">
-<a href="/cases" class="hero-cta">← Back to Case Queue</a>
+  <a href="/cases" class="hero-cta">← Back to Case Queue</a>
 </div>
 
-<!-- CASE SUMMARY -->
 <div class="panel case-summary">
-<div class="section-title">Case Summary</div>
+  <div class="section-title">Case Summary</div>
 
-<div class="grid two">
-<div>
-<p><b>Owner:</b> {{ data.owner_name }}</p>
-<p><b>Trainer:</b> {{ data.trainer_name }}</p>
-<p><b>Location:</b> {{ data.location }}</p>
-<p><b>Submitted:</b> {{ data.submitted_at }}</p>
+  <div class="grid two">
+    <div>
+      <p><b>Owner:</b> {{ case.get('owner_name', '') }}</p>
+      <p><b>Trainer:</b> {{ case.get('trainer_name', '') }}</p>
+      <p><b>Location:</b> {{ case.get('location', '') }}</p>
+      <p><b>Submitted:</b> {{ case.get('submitted_at', '') }}</p>
+    </div>
+
+    {% set scores = case.get('scores', {}) %}
+    <div>
+      <p><b>Hydration:</b> {{ scores.get('hydration', {}).get('score', '') }} / {{ scores.get('hydration', {}).get('band', '') }}</p>
+      <p><b>Gut:</b> {{ scores.get('gut', {}).get('score', '') }} / {{ scores.get('gut', {}).get('band', '') }}</p>
+      <p><b>Muscle:</b> {{ scores.get('muscle', {}).get('score', '') }} / {{ scores.get('muscle', {}).get('band', '') }}</p>
+      <p><b>Metabolic:</b> {{ scores.get('metabolic', {}).get('score', '') }} / {{ scores.get('metabolic', {}).get('band', '') }}</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="case-highlight">
+    <p><b>Presenting Question:</b></p>
+    <p>{{ case.get('primary_question', '') }}</p>
+  </div>
+
+  <div class="case-highlight">
+    <p><b>Horse Story:</b></p>
+    <p>{{ case.get('horse_story', '') }}</p>
+  </div>
+
+  <div class="submit-row">
+    <a href="/reports/{{ case_id }}.txt" class="hero-cta">Download Case Report</a>
+  </div>
 </div>
 
-<div>
-<p><b>Hydration:</b> {{ data.scores.hydration.score }} / {{ data.scores.hydration.band }}</p>
-<p><b>Gut:</b> {{ data.scores.gut.score }} / {{ data.scores.gut.band }}</p>
-<p><b>Muscle:</b> {{ data.scores.muscle.score }} / {{ data.scores.muscle.band }}</p>
-<p><b>Metabolic:</b> {{ data.scores.metabolic.score }} / {{ data.scores.metabolic.band }}</p>
-</div>
-</div>
-
-<div class="section-divider"></div>
-
-<div class="case-highlight">
-<p><b>Presenting Question:</b></p>
-<p>{{ data.primary_question }}</p>
-</div>
-
-<div class="case-highlight">
-<p><b>Horse Story:</b></p>
-<p>{{ data.horse_story }}</p>
-</div>
-
-<div class="submit-row">
-<a href="/reports/{{ case_id }}.txt" class="hero-cta">Download Case Report</a>
-</div>
-</div>
-
-<!-- SUBMITTED MEDIA -->
 <div class="panel">
   <div class="section-title">Submitted Media</div>
 
-  {% set files = data.get('files', {}) %}
+  {% set files = case.get('files', {}) %}
 
   {% if files.get('eye_photos') or files.get('body_photos') or files.get('videos') %}
 
@@ -96,10 +95,9 @@
       <h3>Eye Photos</h3>
       <div class="media-grid">
         {% for file in files.get('eye_photos', []) %}
-          <img
-            class="media-img"
-            src="{{ url_for('case_upload', case_id=case_id, filename=file) }}"
-            alt="Eye Photo">
+          <a href="{{ url_for('case_upload', case_id=case_id, filename=file) }}" target="_blank">
+            <img class="media-img" src="{{ url_for('case_upload', case_id=case_id, filename=file) }}" alt="Eye Photo">
+          </a>
         {% endfor %}
       </div>
     {% endif %}
@@ -108,10 +106,9 @@
       <h3>Body Photos</h3>
       <div class="media-grid">
         {% for file in files.get('body_photos', []) %}
-         <a href="{{ url_for('case_upload', case_id=case_id, filename=file) }}" target="_blank">
-  <img class="media-img"
-       src="{{ url_for('case_upload', case_id=case_id, filename=file) }}">
-            alt="Body Photo">
+          <a href="{{ url_for('case_upload', case_id=case_id, filename=file) }}" target="_blank">
+            <img class="media-img" src="{{ url_for('case_upload', case_id=case_id, filename=file) }}" alt="Body Photo">
+          </a>
         {% endfor %}
       </div>
     {% endif %}
@@ -130,72 +127,22 @@
   {% else %}
     <p>No media uploaded for this case.</p>
   {% endif %}
-</div>  
-<!-- NEXT ACTION -->
+</div>
+
 <div class="panel">
-<div class="section-title">Next Action</div>
+  <div class="section-title">Next Action</div>
 
-<p>
-Continue reviewing this case, return to the active case queue, or use the report file as the structured starting point for ETI interpretation and follow-up.
-</p>
+  <p>
+    Continue reviewing this case, return to the active case queue, or use the report file as the structured starting point for ETI interpretation and follow-up.
+  </p>
 
-<div class="submit-row">
-<a href="/reports/{{ case_id }}.txt" class="hero-cta">Download Case Report</a>
-</div>
+  <div class="submit-row">
+    <a href="/reports/{{ case_id }}.txt" class="hero-cta">Download Case Report</a>
+  </div>
 
-<div class="submit-row" style="margin-top:14px;">
-<a href="/cases" class="hero-cta">Return to Case Queue</a>
-</div>
-</div>
-
-<!-- WORKFLOW -->
-<div class="panel">
-<div class="section-title">Workflow Status</div>
-
-<div class="grid two">
-
-<form method="post" action="/cases/{{ case_id }}/priority" class="panel">
-<div class="section-title">Update Priority</div>
-
-<label>Choose New Priority</label>
-<select name="priority">
-<option value="Standard">Standard</option>
-<option value="Watch Closely">Watch Closely</option>
-<option value="Priority">Priority</option>
-<option value="Urgent">Urgent</option>
-</select>
-
-<div class="submit-row">
-<button type="submit">Update Case Priority</button>
-</div>
-</form>
-
-<div class="case-highlight">
-<p><b>Current Status:</b></p>
-<p>{{ data.status }}</p>
-
-<p><b>Workflow Stages:</b></p>
-<p>New → In Review → Report Drafted → Complete</p>
-</div>
-
-</div>
-
-<form method="post" action="/cases/{{ case_id }}/status" class="panel" style="margin-top:18px;">
-<div class="section-title">Update Status</div>
-
-<label>Choose New Status</label>
-<select name="status">
-<option value="New">New</option>
-<option value="In Review">In Review</option>
-<option value="Report Drafted">Report Drafted</option>
-<option value="Complete">Complete</option>
-</select>
-
-<div class="submit-row">
-<button type="submit">Update Case Status</button>
-</div>
-</form>
-
+  <div class="submit-row" style="margin-top:14px;">
+    <a href="/cases" class="hero-cta">Return to Case Queue</a>
+  </div>
 </div>
 
 </div>
