@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='workflow.css') }}">
 </head>
+
 <body>
   <header class="site-header">
     <div class="site-header-inner">
@@ -23,85 +24,88 @@
   </header>
 
   <div class="page">
-
-    <nav class="nav">
-      <a href="/">Home</a>
-      <a href="/cases">Cases</a>
-    </nav>
-  </div>
-</header>
-  <div class="page">
     <header class="hero compact">
-  <div class="eyebrow">EQUINE TERRAIN INSTITUTE</div>
-  <h1>Case Review Queue</h1>
-  <p>
-    This is the active ETI case list. Each submission represents a horse entered into the
-    terrain review process and organized for interpretation, follow-up, and report development.
-  </p>
-</header>
+      <div class="eyebrow">EQUINE TERRAIN INSTITUTE</div>
+      <h1>Case Review Queue</h1>
+      <p>
+        This is the active ETI case list. Each submission represents a horse entered into the
+        terrain review process and organized for interpretation, follow-up, and report development.
+      </p>
+    </header>
 
     <div class="summary-strip">
-  <div class="summary-card">
-    <div class="summary-label">Total Cases</div>
-    <div class="summary-value">{{ counts['All'] }}</div>
-  </div>
+      <div class="summary-card">
+        <div class="summary-label">Total Cases</div>
+        <div class="summary-value">{{ counts['All'] }}</div>
+      </div>
 
-  <div class="summary-card">
-    <div class="summary-label">Needs Attention</div>
-    <div class="summary-value">{{ counts['New'] + counts['In Review'] }}</div>
-  </div>
+      <div class="summary-card">
+        <div class="summary-label">Needs Attention</div>
+        <div class="summary-value">{{ counts['New'] + counts['In Review'] }}</div>
+      </div>
 
-  <div class="summary-card">
-    <div class="summary-label">Drafted</div>
-    <div class="summary-value">{{ counts['Report Drafted'] }}</div>
-  </div>
+      <div class="summary-card">
+        <div class="summary-label">Drafted</div>
+        <div class="summary-value">{{ counts['Report Drafted'] }}</div>
+      </div>
 
-  <div class="summary-card">
-    <div class="summary-label">Complete</div>
-    <div class="summary-value">{{ counts['Complete'] }}</div>
-  </div>
-</div>
-<form method="get" action="/cases" class="search-bar">
-  <input type="text" name="q" value="{{ search_query }}" placeholder="Search by horse, owner, trainer, discipline, question, status, or priority">
-
-  {% if selected_status %}
-    <input type="hidden" name="status" value="{{ selected_status }}">
-  {% endif %}
-
-  <button type="submit">Search Cases</button>
-</form>
-  <div class="filter-bar">
-  <a href="/cases" class="filter-chip {% if not selected_status %}active{% endif %}">All ({{ counts['All'] }})</a>
-  <a href="/cases?status=New" class="filter-chip {% if selected_status == 'New' %}active{% endif %}">New ({{ counts['New'] }})</a>
-  <a href="/cases?status=In Review" class="filter-chip {% if selected_status == 'In Review' %}active{% endif %}">In Review ({{ counts['In Review'] }})</a>
-  <a href="/cases?status=Report Drafted" class="filter-chip {% if selected_status == 'Report Drafted' %}active{% endif %}">Report Drafted ({{ counts['Report Drafted'] }})</a>
-  <a href="/cases?status=Complete" class="filter-chip {% if selected_status == 'Complete' %}active{% endif %}">Complete ({{ counts['Complete'] }})</a>
-</div>
-
-  <table class="table">
-        <tr><th>Case ID</th><th>Horse</th><th>Discipline</th><th>Workflow</th><th>Presenting Question</th><th>Submitted</th></tr>
-        {% for c in cases %}
-        <tr>
-          <td><a href="/cases/{{ c.case_id }}">{{ c.case_id }}</a></td>
-          <td>{{ c.horse_name }}</td>
-          <td>{{ c.discipline }}</td>
-        <td>
-  <div class="workflow-cell">
-    <span class="status-badge status-{{ c.status|lower|replace(' ', '-') }}">{{ c.status }}</span>
-    <span class="priority-badge priority-{{ c.priority|lower|replace(' ', '-') }}">{{ c.priority }}</span>
-  </div>
-</td>
-          <td>{{ c.primary_question }}</td>
-          <td>
-  <div class="timestamp-block">
-    <div class="timestamp-label">Submitted</div>
-    <div class="timestamp-value">{{ c.submitted_at }}</div>
-  </div>
-</td>
-        </tr>
-        {% endfor %}
-      </table>
+      <div class="summary-card">
+        <div class="summary-label">Complete</div>
+        <div class="summary-value">{{ counts['Complete'] }}</div>
+      </div>
     </div>
+
+    <form method="get" action="/cases" class="search-bar">
+      <input type="text" name="q" value="{{ search_query }}" placeholder="Search by horse, owner, trainer, discipline, question, status, or priority">
+
+      {% if selected_status %}
+        <input type="hidden" name="status" value="{{ selected_status }}">
+      {% endif %}
+
+      <button type="submit">Search Cases</button>
+    </form>
+
+    <div class="filter-bar">
+      <a href="/cases" class="filter-chip {% if not selected_status %}active{% endif %}">All ({{ counts['All'] }})</a>
+      <a href="/cases?status=New" class="filter-chip {% if selected_status == 'New' %}active{% endif %}">New ({{ counts['New'] }})</a>
+      <a href="/cases?status=In Review" class="filter-chip {% if selected_status == 'In Review' %}active{% endif %}">In Review ({{ counts['In Review'] }})</a>
+      <a href="/cases?status=Report Drafted" class="filter-chip {% if selected_status == 'Report Drafted' %}active{% endif %}">Report Drafted ({{ counts['Report Drafted'] }})</a>
+      <a href="/cases?status=Complete" class="filter-chip {% if selected_status == 'Complete' %}active{% endif %}">Complete ({{ counts['Complete'] }})</a>
+    </div>
+
+    <table class="table">
+      <tr>
+        <th>Case ID</th>
+        <th>Horse</th>
+        <th>Discipline</th>
+        <th>Workflow</th>
+        <th>Presenting Question</th>
+        <th>Submitted</th>
+      </tr>
+
+      {% for c in cases %}
+      <tr>
+        <td>
+          <a href="{{ url_for('case_detail', case_id=c.case_id) }}">{{ c.case_id }}</a>
+        </td>
+        <td>{{ c.horse_name }}</td>
+        <td>{{ c.discipline }}</td>
+        <td>
+          <div class="workflow-cell">
+            <span class="status-badge status-{{ c.status|lower|replace(' ', '-') }}">{{ c.status }}</span>
+            <span class="priority-badge priority-{{ c.priority|lower|replace(' ', '-') }}">{{ c.priority }}</span>
+          </div>
+        </td>
+        <td>{{ c.primary_question }}</td>
+        <td>
+          <div class="timestamp-block">
+            <div class="timestamp-label">Submitted</div>
+            <div class="timestamp-value">{{ c.submitted_at }}</div>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
   </div>
 </body>
 </html>
