@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
@@ -243,6 +243,7 @@ def cases():
         search_query=search_query
     )
 
+
 @app.route("/cases/<case_id>")
 def case_detail(case_id):
     case_folder = os.path.join(CASE_DIR, case_id)
@@ -259,6 +260,14 @@ def case_detail(case_id):
         case_id=case_id,
         case=data
     )
+
+
+@app.route("/cases/<case_id>/uploads/<filename>")
+def case_upload(case_id, filename):
+    uploads_folder = os.path.join(CASE_DIR, case_id, "uploads")
+    return send_from_directory(uploads_folder, filename)
+
+
 @app.route("/success")
 def success():
     return render_template("success.html")
