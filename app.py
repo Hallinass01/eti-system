@@ -8,9 +8,13 @@ import shutil
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Persistent storage path.
-# On Render, attach a Persistent Disk mounted at /var/data.
-PERSISTENT_DIR = os.environ.get("PERSISTENT_DIR", "/var/data")
+# Safe storage path:
+# - Works now using local project data folder.
+# - Later, after Render disk is mounted, set PERSISTENT_DIR=/var/data.
+PERSISTENT_DIR = os.environ.get(
+    "PERSISTENT_DIR",
+    os.path.join(BASE_DIR, "data")
+)
 
 UPLOAD_FOLDER = os.path.join(PERSISTENT_DIR, "uploads")
 CASE_DIR = os.path.join(PERSISTENT_DIR, "cases")
