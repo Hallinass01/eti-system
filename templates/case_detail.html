@@ -1,150 +1,17 @@
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>ETI Case {{ case_id }}</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+@app.route("/cases/<case_id>")
+def case_detail(case_id):
+    case_folder = os.path.join(CASE_DIR, case_id)
+    case_json = os.path.join(case_folder, "case.json")
 
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='workflow.css') }}">
-</head>
+    if not os.path.exists(case_json):
+        return "Case not found", 404
 
-<body>
+    with open(case_json, "r", encoding="utf-8") as f:
+        data = json.load(f)
 
-<header class="site-header">
-  <div class="site-header-inner">
-    <div class="logo">
-      <img src="{{ url_for('static', filename='eti-logo.png') }}" alt="ETI Logo">
-      <span>Equine Terrain Institute</span>
-    </div>
-
-    <nav class="nav">
-      <a href="/">Home</a>
-      <a href="/cases">Cases</a>
-    </nav>
-  </div>
-</header>
-
-<div class="page">
-
-<header class="hero compact">
-  <div class="eyebrow">EQUINE TERRAIN INSTITUTE</div>
-
-  <h1>Case Review: {{ case.get('horse_name', 'Unnamed Horse') }}</h1>
-
-  <p>
-    {{ case.get('discipline', '') }} · Case ID {{ case_id }} ·
-    <span class="status-badge status-{{ case.get('status', 'New')|lower|replace(' ','-') }}">
-      {{ case.get('status', 'New') }}
-    </span> ·
-    <span class="priority-badge priority-{{ case.get('priority', 'Standard')|lower|replace(' ','-') }}">
-      {{ case.get('priority', 'Standard') }}
-    </span>
-  </p>
-</header>
-
-<div class="submit-row" style="text-align:left; margin:0 0 18px;">
-  <a href="/cases" class="hero-cta">← Back to Case Queue</a>
-</div>
-
-<div class="panel case-summary">
-  <div class="section-title">Case Summary</div>
-
-  <div class="grid two">
-    <div>
-      <p><b>Owner:</b> {{ case.get('owner_name', '') }}</p>
-      <p><b>Trainer:</b> {{ case.get('trainer_name', '') }}</p>
-      <p><b>Location:</b> {{ case.get('location', '') }}</p>
-      <p><b>Submitted:</b> {{ case.get('submitted_at', '') }}</p>
-    </div>
-
-    {% set scores = case.get('scores', {}) %}
-    <div>
-      <p><b>Hydration:</b> {{ scores.get('hydration', {}).get('score', '') }} / {{ scores.get('hydration', {}).get('band', '') }}</p>
-      <p><b>Gut:</b> {{ scores.get('gut', {}).get('score', '') }} / {{ scores.get('gut', {}).get('band', '') }}</p>
-      <p><b>Muscle:</b> {{ scores.get('muscle', {}).get('score', '') }} / {{ scores.get('muscle', {}).get('band', '') }}</p>
-      <p><b>Metabolic:</b> {{ scores.get('metabolic', {}).get('score', '') }} / {{ scores.get('metabolic', {}).get('band', '') }}</p>
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <div class="case-highlight">
-    <p><b>Presenting Question:</b></p>
-    <p>{{ case.get('primary_question', '') }}</p>
-  </div>
-
-  <div class="case-highlight">
-    <p><b>Horse Story:</b></p>
-    <p>{{ case.get('horse_story', '') }}</p>
-  </div>
-
-  <div class="submit-row">
-    <a href="/reports/{{ case_id }}.txt" class="hero-cta">Download Case Report</a>
-  </div>
-</div>
-
-<div class="panel">
-  <div class="section-title">Submitted Media</div>
-
-  {% set files = case.get('files', {}) %}
-
-  {% if files.get('eye_photos') or files.get('body_photos') or files.get('videos') %}
-
-    {% if files.get('eye_photos') %}
-      <h3>Eye Photos</h3>
-      <div class="media-grid">
-        {% for file in files.get('eye_photos', []) %}
-          <a href="{{ url_for('case_upload', case_id=case_id, filename=file) }}" target="_blank">
-            <img class="media-img" src="{{ url_for('case_upload', case_id=case_id, filename=file) }}" alt="Eye Photo">
-          </a>
-        {% endfor %}
-      </div>
-    {% endif %}
-
-    {% if files.get('body_photos') %}
-      <h3>Body Photos</h3>
-      <div class="media-grid">
-        {% for file in files.get('body_photos', []) %}
-          <a href="{{ url_for('case_upload', case_id=case_id, filename=file) }}" target="_blank">
-            <img class="media-img" src="{{ url_for('case_upload', case_id=case_id, filename=file) }}" alt="Body Photo">
-          </a>
-        {% endfor %}
-      </div>
-    {% endif %}
-
-    {% if files.get('videos') %}
-      <h3>Videos</h3>
-      <div class="media-grid">
-        {% for file in files.get('videos', []) %}
-          <video class="media-video" controls preload="metadata">
-            <source src="{{ url_for('case_upload', case_id=case_id, filename=file) }}">
-          </video>
-        {% endfor %}
-      </div>
-    {% endif %}
-
-  {% else %}
-    <p>No media uploaded for this case.</p>
-  {% endif %}
-</div>
-
-<div class="panel">
-  <div class="section-title">Next Action</div>
-
-  <p>
-    Continue reviewing this case, return to the active case queue, or use the report file as the structured starting point for ETI interpretation and follow-up.
-  </p>
-
-  <div class="submit-row">
-    <a href="/reports/{{ case_id }}.txt" class="hero-cta">Download Case Report</a>
-  </div>
-
-  <div class="submit-row" style="margin-top:14px;">
-    <a href="/cases" class="hero-cta">Return to Case Queue</a>
-  </div>
-</div>
-
-</div>
-</body>
-</html>
+    return render_template(
+        "case_detail.html",
+        case_id=case_id,
+        data=data,
+        case=data
+    )
