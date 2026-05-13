@@ -1,17 +1,18 @@
-@app.route("/cases/<case_id>")
-def case_detail(case_id):
-    case_folder = os.path.join(CASE_DIR, case_id)
-    case_json = os.path.join(case_folder, "case.json")
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ETI Case Detail</title>
 
-    if not os.path.exists(case_json):
-        return "Case not found", 404
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 
-    with open(case_json, "r", encoding="utf-8") as f:
-        data = json.load(f)
+<body class="eti-body">
 
-    return render_template(
-        "case_detail.html",
-        case_id=case_id,
-        data=data,
-        case=data
-    )
+<div class="eti-shell">
+
+  <section class="hero-card">
+    <div class="hero-badge">EQUINE TERRAIN INSTITUTE</div>
+
+   
