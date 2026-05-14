@@ -112,13 +112,57 @@ def build_locked_sections(form):
 def write_report(case_id, form):
     report_path = os.path.join(REPORT_DIR, f"{case_id}.txt")
 
+    files = form.get("files", {})
+
     lines = [
         "Equine Terrain Institute",
+        "The New Science of the Modern Horse: The Terrain Revolution",
         "",
+        "CASE INFORMATION",
         f"Case ID: {case_id}",
-        f"Horse: {form.get('horse_name','')}",
-        ""
+        f"Submitted: {form.get('submitted_at', '')}",
+        "",
+        "HORSE INFORMATION",
+        f"Horse: {form.get('horse_name', '')}",
+        f"Discipline: {form.get('discipline', '')}",
+        f"Breed: {form.get('breed', '')}",
+        f"Age: {form.get('age', '')}",
+        f"Sex: {form.get('sex', '')}",
+        f"Location: {form.get('location', '')}",
+        "",
+        "OWNER / TRAINER INFORMATION",
+        f"Owner: {form.get('owner_name', '')}",
+        f"Trainer: {form.get('trainer_name', '')}",
+        f"Owner Email: {form.get('owner_email', '')}",
+        f"Owner Phone: {form.get('owner_phone', '')}",
+        "",
+        "PRIMARY CONCERN",
+        form.get("primary_question", ""),
+        "",
+        "HORSE STORY",
+        form.get("horse_story", ""),
+        "",
+        "MANAGEMENT NOTES",
+        f"Feed Program: {form.get('feed_program', '')}",
+        f"Supplement Program: {form.get('supplement_program', '')}",
+        f"Water Notes: {form.get('water_notes', '')}",
+        f"Travel Notes: {form.get('travel_notes', '')}",
+        f"Surface Notes: {form.get('surface_notes', '')}",
+        f"Turnout Notes: {form.get('turnout_notes', '')}",
+        "",
+        "MEDIA SUBMITTED",
+        f"Eye Photos: {len(files.get('eye_photos', []))}",
+        f"Body Photos: {len(files.get('body_photos', []))}",
+        f"Videos: {len(files.get('videos', []))}",
+        "",
+        "SCORES",
     ]
+
+    for pillar in ["hydration", "gut", "muscle", "metabolic"]:
+        s = form["scores"][pillar]
+        lines.append(f"- {pillar.title()}: {s['score']} ({s['band']})")
+
+    lines.append("")
 
     for section, text in form["locked_sections"].items():
         lines.append(section)
