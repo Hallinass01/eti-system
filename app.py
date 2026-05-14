@@ -192,6 +192,8 @@ def intake():
             "horse_name": request.form.get("horse_name", ""),
             "owner_name": request.form.get("owner_name", ""),
             "trainer_name": request.form.get("trainer_name", ""),
+            "owner_email": request.form.get("owner_email", ""),
+            "owner_phone": request.form.get("owner_phone", ""),
             "discipline": request.form.get("discipline", ""),
             "breed": request.form.get("breed", ""),
             "age": request.form.get("age", ""),
