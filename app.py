@@ -307,6 +307,8 @@ def cases():
 
 
 @app.route("/cases/<case_id>")
+@app.route("/cases/<case_id>/")
+@app.route("/case/<case_id>")
 def case_detail(case_id):
     case_folder = os.path.join(CASE_DIR, case_id)
     case_json = os.path.join(case_folder, "case.json")
@@ -320,7 +322,7 @@ def case_detail(case_id):
     return render_template(
         "case_detail.html",
         case_id=case_id,
-        case=data
+        case=data,
     )
 
 
