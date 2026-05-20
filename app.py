@@ -386,7 +386,39 @@ def delete_case(case_id):
 
     return redirect(url_for("cases"))
 
+@app.route("/cases/<case_id>/download")
+def download_case(case_id):
+    case_folder = os.path.join(CASE_DIR, case_id)
+    uploads_folder = os.path.join(case_folder, "uploads")
+    case_json = os.path.join(case_folder, "case.json")
+    report_path = os.path.join(REPORT_DIR, f"{case_id}.txt")
 
+    if not os.path.exists(case_json):
+        return "Case not found", 404
+
+    memory_file = BytesIO()
+
+    with zipfile.ZipFile(memory_file, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.write(case_json, arcname=f"{case_id}/case.json")
+
+        if os.path.exists(report_path):
+            zf.write(report_path, arcname=f"{case_id}/ETI_Case_Report.txt")
+
+        if os.path.isdir(uploads_folder):
+            for filename in os.listdir(uploads_folder):
+                filepath = os.path.join(uploads_folder, filename)
+                if os.path.isfile(filepath):
+                    zf.write(filepath, arcname=f"{case_id}/media/{filename}")
+
+    memory_file.seek(0)
+
+    return send_file(
+        memory_file,
+        mimetype="application/zip",
+        as_attachment=True,
+        download_name=f"ETI_Case_{case_id}.zip"
+    )
+    
 @app.route("/success")
 def success():
     return render_template("success.html")
