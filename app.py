@@ -320,11 +320,11 @@ def case_detail(case_id):
         data = json.load(f)
 
     return render_template(
-        "case_detail.html",
-        case_id=case_id,
-        case=data,
-    )
-
+    "case_detail.html",
+    case_id=case_id,
+    case=data,
+    data=data
+)
 
 @app.route("/cases/<case_id>/uploads/<filename>")
 def case_upload(case_id, filename):
