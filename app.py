@@ -31,6 +31,156 @@ app = Flask(__name__, template_folder="templates", static_folder="static")
 app.config["MAX_CONTENT_LENGTH"] = 1024 * 1024 * 500
 
 
+# ----------------------------
+# ETI INTAKE PROTECTION SETTINGS
+# ----------------------------
+
+ALLOWED_IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp", "heic", "heif"}
+ALLOWED_VIDEO_EXTENSIONS = {"mp4", "mov", "m4v", "avi", "webm"}
+
+SPAM_WORDS = [
+    "btc",
+    "bitcoin",
+    "crypto",
+    "wallet",
+    "transaction id",
+    "mined",
+    "mining",
+    "telegra.ph",
+    "telegram",
+    "download full case package",
+    "airdrop",
+    "claim reward",
+    "investment",
+    "forex",
+    "casino",
+    "viagra",
+    "loan offer",
+    "seo backlinks",
+    "rank your website",
+]
+
+
+def clean(value):
+    return (value or "").strip()
+
+
+def file_has_name(file_storage):
+    return bool(file_storage and file_storage.filename and file_storage.filename.strip())
+
+
+def get_extension(filename):
+    if not filename or "." not in filename:
+        return ""
+    return filename.rsplit(".", 1)[1].lower()
+
+
+def allowed_file(file_storage, allowed_extensions):
+    if not file_has_name(file_storage):
+        return False
+    return get_extension(file_storage.filename) in allowed_extensions
+
+
+def has_allowed_file(files, allowed_extensions):
+    return any(allowed_file(f, allowed_extensions) for f in files)
+
+
+def submission_text_for_spam_check(form):
+    return " ".join([
+        form.get("horse_name", ""),
+        form.get("owner_name", ""),
+        form.get("trainer_name", ""),
+        form.get("owner_email", ""),
+        form.get("owner_phone", ""),
+        form.get("discipline", ""),
+        form.get("breed", ""),
+        form.get("location", ""),
+        form.get("primary_question", ""),
+        form.get("horse_story", ""),
+        form.get("feed_program", ""),
+        form.get("supplement_program", ""),
+        form.get("water_notes", ""),
+        form.get("travel_notes", ""),
+        form.get("surface_notes", ""),
+        form.get("turnout_notes", ""),
+    ]).lower()
+
+
+def looks_like_spam(form):
+    combined_text = submission_text_for_spam_check(form)
+    return any(word in combined_text for word in SPAM_WORDS)
+
+
+def validate_real_case_submission():
+    """
+    Blocks empty bot submissions and obvious spam before any case folder is created.
+    Returns: (is_valid, message)
+    """
+
+    # Honeypot field. Add this hidden input to index.html:
+    # <input type="text" name="website" autocomplete="off" tabindex="-1">
+    # Real users should never fill this out. Bots often do.
+    honeypot = clean(request.form.get("website", ""))
+    if honeypot:
+        return False, "Spam rejected."
+
+    horse_name = clean(request.form.get("horse_name", ""))
+    owner_name = clean(request.form.get("owner_name", ""))
+    owner_email = clean(request.form.get("owner_email", ""))
+    owner_phone = clean(request.form.get("owner_phone", ""))
+    primary_question = clean(request.form.get("primary_question", ""))
+    horse_story = clean(request.form.get("horse_story", ""))
+
+    eye_files = request.files.getlist("eye_photos")
+    body_files = request.files.getlist("body_photos")
+    video_files = request.files.getlist("videos")
+
+    all_files = eye_files + body_files + video_files
+    has_any_file = any(file_has_name(f) for f in all_files)
+
+    has_valid_eye_photo = has_allowed_file(eye_files, ALLOWED_IMAGE_EXTENSIONS)
+    has_valid_body_photo = has_allowed_file(body_files, ALLOWED_IMAGE_EXTENSIONS)
+    has_valid_video = has_allowed_file(video_files, ALLOWED_VIDEO_EXTENSIONS)
+
+    meaningful_text = [
+        horse_name,
+        owner_name,
+        owner_email,
+        owner_phone,
+        primary_question,
+        horse_story,
+    ]
+
+    # Reject totally empty submissions before case folders are created.
+    if not any(meaningful_text) and not has_any_file:
+        return False, "Empty submission rejected."
+
+    # Require a real contact point.
+    if not owner_email and not owner_phone:
+        return False, "Contact information required."
+
+    # Require basic case identity.
+    if not horse_name:
+        return False, "Horse name required."
+
+    if not owner_name:
+        return False, "Owner name required."
+
+    # Require a reason for the case.
+    if not primary_question and not horse_story:
+        return False, "Primary concern or horse story required."
+
+    # Require at least one real piece of horse media.
+    # This can be an eye photo, body photo, or video.
+    if not (has_valid_eye_photo or has_valid_body_photo or has_valid_video):
+        return False, "At least one valid photo or video is required."
+
+    if looks_like_spam(request.form):
+        return False, "Spam rejected."
+
+    return True, "OK"
+
+
 def load_json(path):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -40,16 +190,22 @@ def make_case_id():
     return datetime.utcnow().strftime("%Y%m%d") + "-" + uuid.uuid4().hex[:8]
 
 
-def save_files(files, folder):
+def save_files(files, folder, allowed_extensions=None):
     saved = []
     os.makedirs(folder, exist_ok=True)
 
     for f in files:
-        if f and f.filename:
-            filename = f"{uuid.uuid4().hex}_{secure_filename(f.filename)}"
-            filepath = os.path.join(folder, filename)
-            f.save(filepath)
-            saved.append(filename)
+        if not file_has_name(f):
+            continue
+
+        if allowed_extensions is not None and not allowed_file(f, allowed_extensions):
+            print(f"Skipped disallowed upload: {f.filename}")
+            continue
+
+        filename = f"{uuid.uuid4().hex}_{secure_filename(f.filename)}"
+        filepath = os.path.join(folder, filename)
+        f.save(filepath)
+        saved.append(filename)
 
     return saved
 
@@ -176,6 +332,16 @@ def write_report(case_id, form):
 @app.route("/", methods=["GET", "POST"])
 def intake():
     if request.method == "POST":
+
+        # CRITICAL:
+        # Validate first. Do not create a case folder, uploads folder, case.json,
+        # or report until this submission proves it is a real ETI case.
+        is_valid, message = validate_real_case_submission()
+
+        if not is_valid:
+            print(f"Rejected submission: {message}")
+            return message, 400
+
         case_id = make_case_id()
         case_folder = os.path.join(CASE_DIR, case_id)
         uploads_folder = os.path.join(case_folder, "uploads")
@@ -183,30 +349,42 @@ def intake():
         os.makedirs(case_folder, exist_ok=True)
         os.makedirs(uploads_folder, exist_ok=True)
 
-        eye_paths = save_files(request.files.getlist("eye_photos"), uploads_folder)
-        body_paths = save_files(request.files.getlist("body_photos"), uploads_folder)
-        video_paths = save_files(request.files.getlist("videos"), uploads_folder)
+        eye_paths = save_files(
+            request.files.getlist("eye_photos"),
+            uploads_folder,
+            ALLOWED_IMAGE_EXTENSIONS
+        )
+        body_paths = save_files(
+            request.files.getlist("body_photos"),
+            uploads_folder,
+            ALLOWED_IMAGE_EXTENSIONS
+        )
+        video_paths = save_files(
+            request.files.getlist("videos"),
+            uploads_folder,
+            ALLOWED_VIDEO_EXTENSIONS
+        )
 
         form = {
             "submitted_at": datetime.utcnow().isoformat() + "Z",
-            "horse_name": request.form.get("horse_name", ""),
-            "owner_name": request.form.get("owner_name", ""),
-            "trainer_name": request.form.get("trainer_name", ""),
-            "owner_email": request.form.get("owner_email", ""),
-            "owner_phone": request.form.get("owner_phone", ""),
-            "discipline": request.form.get("discipline", ""),
-            "breed": request.form.get("breed", ""),
-            "age": request.form.get("age", ""),
-            "sex": request.form.get("sex", ""),
-            "location": request.form.get("location", ""),
-            "primary_question": request.form.get("primary_question", ""),
-            "horse_story": request.form.get("horse_story", ""),
-            "feed_program": request.form.get("feed_program", ""),
-            "supplement_program": request.form.get("supplement_program", ""),
-            "water_notes": request.form.get("water_notes", ""),
-            "travel_notes": request.form.get("travel_notes", ""),
-            "surface_notes": request.form.get("surface_notes", ""),
-            "turnout_notes": request.form.get("turnout_notes", ""),
+            "horse_name": clean(request.form.get("horse_name", "")),
+            "owner_name": clean(request.form.get("owner_name", "")),
+            "trainer_name": clean(request.form.get("trainer_name", "")),
+            "owner_email": clean(request.form.get("owner_email", "")),
+            "owner_phone": clean(request.form.get("owner_phone", "")),
+            "discipline": clean(request.form.get("discipline", "")),
+            "breed": clean(request.form.get("breed", "")),
+            "age": clean(request.form.get("age", "")),
+            "sex": clean(request.form.get("sex", "")),
+            "location": clean(request.form.get("location", "")),
+            "primary_question": clean(request.form.get("primary_question", "")),
+            "horse_story": clean(request.form.get("horse_story", "")),
+            "feed_program": clean(request.form.get("feed_program", "")),
+            "supplement_program": clean(request.form.get("supplement_program", "")),
+            "water_notes": clean(request.form.get("water_notes", "")),
+            "travel_notes": clean(request.form.get("travel_notes", "")),
+            "surface_notes": clean(request.form.get("surface_notes", "")),
+            "turnout_notes": clean(request.form.get("turnout_notes", "")),
             "symptoms": request.form.getlist("symptoms"),
             "review_flags": request.form.getlist("review_flags"),
             "status": "New",
@@ -320,11 +498,12 @@ def case_detail(case_id):
         data = json.load(f)
 
     return render_template(
-    "case_detail.html",
-    case_id=case_id,
-    case=data,
-    data=data
-)
+        "case_detail.html",
+        case_id=case_id,
+        case=data,
+        data=data
+    )
+
 
 @app.route("/cases/<case_id>/uploads/<filename>")
 def case_upload(case_id, filename):
@@ -386,6 +565,7 @@ def delete_case(case_id):
 
     return redirect(url_for("cases"))
 
+
 @app.route("/cases/<case_id>/download")
 def download_case(case_id):
     case_folder = os.path.join(CASE_DIR, case_id)
@@ -418,7 +598,8 @@ def download_case(case_id):
         as_attachment=True,
         download_name=f"ETI_Case_{case_id}.zip"
     )
-    
+
+
 @app.route("/success")
 def success():
     return render_template("success.html")
