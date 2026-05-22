@@ -410,7 +410,7 @@ def intake():
     return render_template("index.html")
 
 
-@app.route("/cases")
+@app.route("/terrain-desk")
 def cases():
     selected_status = request.args.get("status", "").strip()
     search_query = request.args.get("q", "").strip().lower()
