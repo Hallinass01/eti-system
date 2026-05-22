@@ -152,6 +152,16 @@
     </section>
 
     <form id="eti-form" method="post" enctype="multipart/form-data" class="panel">
+
+      <!-- Hidden honeypot field for spam-bot protection.
+           Real users will not see this. Bots often fill it out.
+           If filled, app.py rejects the submission before saving a case. -->
+      <div style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;" aria-hidden="true">
+        <label>Website
+          <input type="text" name="website" autocomplete="off" tabindex="-1">
+        </label>
+      </div>
+
       <div class="section-title">Begin Your Horse’s Review</div>
 
       <p>
@@ -167,7 +177,7 @@
 
       <div class="grid four">
         <label>Horse Name<input name="horse_name" required></label>
-        <label>Owner Name<input name="owner_name"></label>
+        <label>Owner Name<input name="owner_name" required></label>
         <label>Trainer Name<input name="trainer_name"></label>
         <label>Owner Email<input name="owner_email" type="email"></label>
         <label>Owner Phone<input name="owner_phone"></label>
@@ -190,13 +200,17 @@
         <label>Location<input name="location"></label>
       </div>
 
+      <p class="helper">
+        Please include either an email or a phone number so ETI can identify and follow up on the case.
+      </p>
+
       <div class="section-divider"></div>
 
       <div class="section-title">What Is Not Right, Different, or Concerning?</div>
 
       <label class="wide-label">
         What is your horse doing right now that you do not like, do not understand, or do not feel is normal?
-        <textarea name="primary_question" rows="3"></textarea>
+        <textarea name="primary_question" rows="3" required></textarea>
         <small>Examples: stopping at fences, fading late, acting anxious, changing at shows, random off days, resistance, poor recovery, or just not feeling right.</small>
       </label>
 
@@ -267,10 +281,25 @@
       </p>
 
       <div class="grid three">
-        <label>Eye Photos<input type="file" name="eye_photos" multiple><small>Upload the clearest left and right eye photos you can get.</small></label>
-        <label>Body Photos<input type="file" name="body_photos" multiple><small>Side views, front, behind, and anything that helps show posture or asymmetry.</small></label>
-        <label>Movement Video<input type="file" name="videos" multiple><small>Short clips of the horse walking or trotting in a straight line are ideal.</small></label>
+        <label>Eye Photos
+          <input type="file" name="eye_photos" multiple accept=".jpg,.jpeg,.png,.webp,.heic,.heif,image/*">
+          <small>Upload the clearest left and right eye photos you can get.</small>
+        </label>
+
+        <label>Body Photos
+          <input type="file" name="body_photos" multiple accept=".jpg,.jpeg,.png,.webp,.heic,.heif,image/*">
+          <small>Side views, front, behind, and anything that helps show posture or asymmetry.</small>
+        </label>
+
+        <label>Movement Video
+          <input type="file" name="videos" multiple accept=".mp4,.mov,.m4v,.avi,.webm,video/*">
+          <small>Short clips of the horse walking or trotting in a straight line are ideal.</small>
+        </label>
       </div>
+
+      <p class="helper">
+        At least one valid photo or video is required before the case can be submitted.
+      </p>
 
       <p>
         Once submitted, your case is captured and organized for ETI review. The goal is to move from
@@ -298,10 +327,7 @@
       <div class="submit-row">
         <a href="#eti-form" class="hero-cta">Start Your Horse’s Analysis</a>
       </div>
-      <div style="display:none;">
-  <label>Website</label>
-  <input type="text" name="website" autocomplete="off" tabindex="-1">
-</div>
+
     </form>
 
   </div>
