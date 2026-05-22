@@ -645,3 +645,19 @@ button:active,.hero-cta:active{
   min-width:0;
   overflow-wrap:break-word;
 }
+.hidden-admin-link {
+  position: fixed;
+  right: 10px;
+  bottom: 8px;
+  z-index: 9999;
+}
+
+.hidden-admin-link a {
+  color: rgba(255, 255, 255, 0.12);
+  font-size: 11px;
+  text-decoration: none;
+}
+
+.hidden-admin-link a:hover {
+  color: rgba(255, 255, 255, 0.75);
+}
