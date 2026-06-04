@@ -428,7 +428,7 @@ def intake():
             json.dump(form, f, indent=2)
 
         write_report(case_id, form)
-
+            f"Shopify Order Number: {form.get('shopify_order_number', '')}",
         return redirect(url_for("case_detail", case_id=case_id))
 
     return render_template("index.html")
