@@ -96,6 +96,11 @@ def submission_text_for_spam_check(form):
         form.get("breed", ""),
         form.get("location", ""),
         form.get("primary_question", ""),
+        form.get("primary_concern_rank", ""),
+        form.get("issue_started", ""),
+        form.get("changed_before_notes", ""),
+        form.get("success_60_days", ""),
+        form.get("urgency_level", ""),
         form.get("horse_story", ""),
         form.get("feed_program", ""),
         form.get("supplement_program", ""),
@@ -117,9 +122,6 @@ def validate_real_case_submission():
     Returns: (is_valid, message)
     """
 
-    # Honeypot field. Add this hidden input to index.html:
-    # <input type="text" name="website" autocomplete="off" tabindex="-1">
-    # Real users should never fill this out. Bots often do.
     honeypot = clean(request.form.get("website", ""))
     if honeypot:
         return False, "Spam rejected."
@@ -128,14 +130,8 @@ def validate_real_case_submission():
     owner_name = clean(request.form.get("owner_name", ""))
     owner_email = clean(request.form.get("owner_email", ""))
     owner_phone = clean(request.form.get("owner_phone", ""))
-    "primary_question": request.form.get("primary_question", ""),
-    "primary_concern_rank": request.form.get("primary_concern_rank", ""),
-    "issue_started": request.form.get("issue_started", ""),
-    "changed_before": request.form.getlist("changed_before"),
-    "changed_before_notes": request.form.get("changed_before_notes", ""),
-    "success_60_days": request.form.get("success_60_days", ""),
-    "urgency_level": request.form.get("urgency_level", ""),
-    "horse_story": request.form.get("horse_story", ""),
+    primary_question = clean(request.form.get("primary_question", ""))
+    horse_story = clean(request.form.get("horse_story", ""))
 
     eye_files = request.files.getlist("eye_photos")
     body_files = request.files.getlist("body_photos")
@@ -157,27 +153,21 @@ def validate_real_case_submission():
         horse_story,
     ]
 
-    # Reject totally empty submissions before case folders are created.
     if not any(meaningful_text) and not has_any_file:
         return False, "Empty submission rejected."
 
-    # Require a real contact point.
     if not owner_email and not owner_phone:
         return False, "Contact information required."
 
-    # Require basic case identity.
     if not horse_name:
         return False, "Horse name required."
 
     if not owner_name:
         return False, "Owner name required."
 
-    # Require a reason for the case.
     if not primary_question and not horse_story:
         return False, "Primary concern or horse story required."
 
-    # Require at least one real piece of horse media.
-    # This can be an eye photo, body photo, or video.
     if not (has_valid_eye_photo or has_valid_body_photo or has_valid_video):
         return False, "At least one valid photo or video is required."
 
@@ -273,7 +263,6 @@ def build_locked_sections(form):
 
 def write_report(case_id, form):
     report_path = os.path.join(REPORT_DIR, f"{case_id}.txt")
-
     files = form.get("files", {})
 
     lines = [
@@ -320,13 +309,21 @@ def write_report(case_id, form):
         form.get("urgency_level", ""),
         "",
         "HORSE STORY",
-        form.get("horse_story", ""),        "MANAGEMENT NOTES",
+        form.get("horse_story", ""),
+        "",
+        "MANAGEMENT NOTES",
         f"Feed Program: {form.get('feed_program', '')}",
         f"Supplement Program: {form.get('supplement_program', '')}",
         f"Water Notes: {form.get('water_notes', '')}",
         f"Travel Notes: {form.get('travel_notes', '')}",
         f"Surface Notes: {form.get('surface_notes', '')}",
         f"Turnout Notes: {form.get('turnout_notes', '')}",
+        "",
+        "SYMPTOMS / PATTERNS SELECTED",
+        ", ".join(form.get("symptoms", [])),
+        "",
+        "REVIEW FLAGS",
+        ", ".join(form.get("review_flags", [])),
         "",
         "MEDIA SUBMITTED",
         f"Eye Photos: {len(files.get('eye_photos', []))}",
@@ -355,9 +352,6 @@ def write_report(case_id, form):
 def intake():
     if request.method == "POST":
 
-        # CRITICAL:
-        # Validate first. Do not create a case folder, uploads folder, case.json,
-        # or report until this submission proves it is a real ETI case.
         is_valid, message = validate_real_case_submission()
 
         if not is_valid:
@@ -399,8 +393,16 @@ def intake():
             "age": clean(request.form.get("age", "")),
             "sex": clean(request.form.get("sex", "")),
             "location": clean(request.form.get("location", "")),
+
             "primary_question": clean(request.form.get("primary_question", "")),
+            "primary_concern_rank": clean(request.form.get("primary_concern_rank", "")),
+            "issue_started": clean(request.form.get("issue_started", "")),
+            "changed_before": request.form.getlist("changed_before"),
+            "changed_before_notes": clean(request.form.get("changed_before_notes", "")),
+            "success_60_days": clean(request.form.get("success_60_days", "")),
+            "urgency_level": clean(request.form.get("urgency_level", "")),
             "horse_story": clean(request.form.get("horse_story", "")),
+
             "feed_program": clean(request.form.get("feed_program", "")),
             "supplement_program": clean(request.form.get("supplement_program", "")),
             "water_notes": clean(request.form.get("water_notes", "")),
@@ -433,6 +435,7 @@ def intake():
 
 
 @app.route("/terrain-desk")
+@app.route("/cases")
 def cases():
     selected_status = request.args.get("status", "").strip()
     search_query = request.args.get("q", "").strip().lower()
