@@ -661,3 +661,30 @@ button:active,.hero-cta:active{
 .hidden-admin-link a:hover {
   color: rgba(255, 255, 255, 0.75);
 }
+.check-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 18px;
+  margin: 12px 0 18px;
+}
+
+.check-grid label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.helper-text {
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 4px 0 12px;
+}
+
+@media (max-width: 720px) {
+  .check-grid {
+    grid-template-columns: 1fr;
+  }
+}
