@@ -10,9 +10,6 @@ from io import BytesIO
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Safe storage path:
-# - Works now using local project data folder.
-# - Later, after Render disk is mounted, set PERSISTENT_DIR=/var/data.
 PERSISTENT_DIR = os.environ.get(
     "PERSISTENT_DIR",
     os.path.join(BASE_DIR, "data")
@@ -37,6 +34,10 @@ app.config["MAX_CONTENT_LENGTH"] = 1024 * 1024 * 500
 
 ALLOWED_IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp", "heic", "heif"}
 ALLOWED_VIDEO_EXTENSIONS = {"mp4", "mov", "m4v", "avi", "webm"}
+
+# Set this in Render later if you want:
+# INTAKE_ACCESS_CODE = ETI-REVIEW-2026
+INTAKE_ACCESS_CODE = os.environ.get("INTAKE_ACCESS_CODE", "ETI-REVIEW-2026")
 
 SPAM_WORDS = [
     "btc",
@@ -95,6 +96,7 @@ def submission_text_for_spam_check(form):
         form.get("discipline", ""),
         form.get("breed", ""),
         form.get("location", ""),
+        form.get("shopify_order_number", ""),
         form.get("primary_question", ""),
         form.get("primary_concern_rank", ""),
         form.get("issue_started", ""),
@@ -126,10 +128,15 @@ def validate_real_case_submission():
     if honeypot:
         return False, "Spam rejected."
 
+    intake_access_code = clean(request.form.get("intake_access_code", ""))
+    if intake_access_code != INTAKE_ACCESS_CODE:
+        return False, "Valid ETI intake access code required."
+
     horse_name = clean(request.form.get("horse_name", ""))
     owner_name = clean(request.form.get("owner_name", ""))
     owner_email = clean(request.form.get("owner_email", ""))
     owner_phone = clean(request.form.get("owner_phone", ""))
+    shopify_order_number = clean(request.form.get("shopify_order_number", ""))
     primary_question = clean(request.form.get("primary_question", ""))
     horse_story = clean(request.form.get("horse_story", ""))
 
@@ -149,12 +156,16 @@ def validate_real_case_submission():
         owner_name,
         owner_email,
         owner_phone,
+        shopify_order_number,
         primary_question,
         horse_story,
     ]
 
     if not any(meaningful_text) and not has_any_file:
         return False, "Empty submission rejected."
+
+    if not shopify_order_number:
+        return False, "Shopify order number required."
 
     if not owner_email and not owner_phone:
         return False, "Contact information required."
@@ -271,6 +282,7 @@ def write_report(case_id, form):
         "",
         "CASE INFORMATION",
         f"Case ID: {case_id}",
+        f"Shopify Order Number: {form.get('shopify_order_number', '')}",
         f"Submitted: {form.get('submitted_at', '')}",
         "",
         "HORSE INFORMATION",
@@ -394,6 +406,7 @@ def intake():
             "sex": clean(request.form.get("sex", "")),
             "location": clean(request.form.get("location", "")),
             "shopify_order_number": clean(request.form.get("shopify_order_number", "")),
+
             "primary_question": clean(request.form.get("primary_question", "")),
             "primary_concern_rank": clean(request.form.get("primary_concern_rank", "")),
             "issue_started": clean(request.form.get("issue_started", "")),
@@ -428,7 +441,7 @@ def intake():
             json.dump(form, f, indent=2)
 
         write_report(case_id, form)
-            f"Shopify Order Number: {form.get('shopify_order_number', '')}",
+
         return redirect(url_for("case_detail", case_id=case_id))
 
     return render_template("index.html")
