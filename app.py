@@ -393,7 +393,7 @@ def intake():
             "age": clean(request.form.get("age", "")),
             "sex": clean(request.form.get("sex", "")),
             "location": clean(request.form.get("location", "")),
-
+            "shopify_order_number": clean(request.form.get("shopify_order_number", "")),
             "primary_question": clean(request.form.get("primary_question", "")),
             "primary_concern_rank": clean(request.form.get("primary_concern_rank", "")),
             "issue_started": clean(request.form.get("issue_started", "")),
