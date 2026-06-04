@@ -62,11 +62,20 @@
       </div>
 
       <div class="section-title">Horse, Owner & Trainer Information</div>
-       <label>Shopify Order Number
-        <input name="shopify_order_number" placeholder="Example: #1001">
-        <small>Please enter the order number from your Shopify purchase confirmation.</small>
-      </label>
-      <p>
+      <div class="grid two">
+  <label>Shopify Order Number
+    <input name="shopify_order_number" placeholder="Example: #1001" required>
+    <small>Please enter the order number from your Shopify purchase confirmation email.</small>
+  </label>
+
+  <label>ETI Intake Access Code
+    <input name="intake_access_code" placeholder="Enter access code" required>
+    <small>This code is provided in your Shopify order confirmation email.</small>
+  </label>
+</div>
+
+<div class="section-divider"></div>
+      </p>
         Basic horse and contact information helps organize the case correctly from the start.
       </p>
 
