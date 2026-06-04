@@ -128,8 +128,14 @@ def validate_real_case_submission():
     owner_name = clean(request.form.get("owner_name", ""))
     owner_email = clean(request.form.get("owner_email", ""))
     owner_phone = clean(request.form.get("owner_phone", ""))
-    primary_question = clean(request.form.get("primary_question", ""))
-    horse_story = clean(request.form.get("horse_story", ""))
+    "primary_question": request.form.get("primary_question", ""),
+    "primary_concern_rank": request.form.get("primary_concern_rank", ""),
+    "issue_started": request.form.get("issue_started", ""),
+    "changed_before": request.form.getlist("changed_before"),
+    "changed_before_notes": request.form.get("changed_before_notes", ""),
+    "success_60_days": request.form.get("success_60_days", ""),
+    "urgency_level": request.form.get("urgency_level", ""),
+    "horse_story": request.form.get("horse_story", ""),
 
     eye_files = request.files.getlist("eye_photos")
     body_files = request.files.getlist("body_photos")
@@ -295,9 +301,26 @@ def write_report(case_id, form):
         "PRIMARY CONCERN",
         form.get("primary_question", ""),
         "",
+        "PRIMARY CONCERN CATEGORY",
+        form.get("primary_concern_rank", ""),
+        "",
+        "TIMELINE",
+        f"When This First Began: {form.get('issue_started', '')}",
+        "",
+        "WHAT CHANGED BEFORE THIS STARTED",
+        ", ".join(form.get("changed_before", [])),
+        "",
+        "Change Notes:",
+        form.get("changed_before_notes", ""),
+        "",
+        "60-DAY SUCCESS GOAL",
+        form.get("success_60_days", ""),
+        "",
+        "URGENCY LEVEL",
+        form.get("urgency_level", ""),
+        "",
         "HORSE STORY",
         form.get("horse_story", ""),
-        "",
         "MANAGEMENT NOTES",
         f"Feed Program: {form.get('feed_program', '')}",
         f"Supplement Program: {form.get('supplement_program', '')}",
