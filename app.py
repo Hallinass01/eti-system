@@ -442,7 +442,7 @@ def intake():
 
         write_report(case_id, form)
 
-        return redirect(url_for("case_detail", case_id=case_id))
+        return redirect(url_for("success"))
 
     return render_template("index.html")
 
