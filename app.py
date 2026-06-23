@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory, send_file
+from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory, send_file, Response
 from werkzeug.utils import secure_filename
 from datetime import datetime
+from functools import wraps
 import os
 import json
 import uuid
@@ -10,6 +11,9 @@ from io import BytesIO
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# Safe storage path:
+# - Works now using local project data folder.
+# - Later, after Render disk is mounted, set PERSISTENT_DIR=/var/data.
 PERSISTENT_DIR = os.environ.get(
     "PERSISTENT_DIR",
     os.path.join(BASE_DIR, "data")
@@ -35,9 +39,11 @@ app.config["MAX_CONTENT_LENGTH"] = 1024 * 1024 * 500
 ALLOWED_IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp", "heic", "heif"}
 ALLOWED_VIDEO_EXTENSIONS = {"mp4", "mov", "m4v", "avi", "webm"}
 
-# Set this in Render later if you want:
-# INTAKE_ACCESS_CODE = ETI-REVIEW-2026
 INTAKE_ACCESS_CODE = os.environ.get("INTAKE_ACCESS_CODE", "ETI-REVIEW-2026")
+
+# Admin protection for Terrain Desk / case files
+ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "ETI-ADMIN-2026")
 
 SPAM_WORDS = [
     "btc",
@@ -62,6 +68,39 @@ SPAM_WORDS = [
 ]
 
 
+# ----------------------------
+# ADMIN PASSWORD PROTECTION
+# ----------------------------
+
+def check_admin_auth(auth):
+    return (
+        auth
+        and auth.username == ADMIN_USERNAME
+        and auth.password == ADMIN_PASSWORD
+    )
+
+
+def admin_required(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        auth = request.authorization
+
+        if not check_admin_auth(auth):
+            return Response(
+                "Admin login required.",
+                401,
+                {"WWW-Authenticate": 'Basic realm="ETI Terrain Desk"'}
+            )
+
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+# ----------------------------
+# HELPER FUNCTIONS
+# ----------------------------
+
 def clean(value):
     return (value or "").strip()
 
@@ -84,6 +123,47 @@ def allowed_file(file_storage, allowed_extensions):
 
 def has_allowed_file(files, allowed_extensions):
     return any(allowed_file(f, allowed_extensions) for f in files)
+
+
+def normalize_order_number(order_number):
+    value = clean(order_number).upper()
+
+    if value and not value.startswith("#") and value.replace("-", "").isdigit():
+        value = "#" + value
+
+    return value
+
+
+def count_existing_submissions_for_order(order_number):
+    """
+    Counts how many existing ETI cases already use this Shopify order number.
+    This does not block the submission. It gives visibility and flags multiples.
+    """
+    normalized_order = normalize_order_number(order_number)
+
+    if not normalized_order or not os.path.isdir(CASE_DIR):
+        return 0
+
+    count = 0
+
+    for existing_case_id in os.listdir(CASE_DIR):
+        case_json = os.path.join(CASE_DIR, existing_case_id, "case.json")
+
+        if not os.path.exists(case_json):
+            continue
+
+        try:
+            with open(case_json, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except Exception:
+            continue
+
+        existing_order = normalize_order_number(data.get("shopify_order_number", ""))
+
+        if existing_order == normalized_order:
+            count += 1
+
+    return count
 
 
 def submission_text_for_spam_check(form):
@@ -265,8 +345,8 @@ def build_locked_sections(form):
             "May progress into greater inconsistency and breakdown.",
         "ETI Conclusion":
             "Full review pending.",
-        "Tom to Trainer":
-            "Direct practical notes go here.",
+        "Care Team Guidance":
+            "Direct practical notes for the owner, trainer, veterinarian, farrier, and care team.",
         "Next-Step Framework":
             "Immediate priorities, monitoring, follow-up."
     }
@@ -283,6 +363,9 @@ def write_report(case_id, form):
         "CASE INFORMATION",
         f"Case ID: {case_id}",
         f"Shopify Order Number: {form.get('shopify_order_number', '')}",
+        f"Order Submission Number: {form.get('order_submission_number', '')}",
+        f"Previous Submissions On This Order: {form.get('previous_order_submissions', '')}",
+        f"Order Quantity Verification Flag: {form.get('order_submission_note', '')}",
         f"Submitted: {form.get('submitted_at', '')}",
         "",
         "HORSE INFORMATION",
@@ -360,6 +443,10 @@ def write_report(case_id, form):
         f.write("\n".join(lines))
 
 
+# ----------------------------
+# PUBLIC ROUTES
+# ----------------------------
+
 @app.route("/", methods=["GET", "POST"])
 def intake():
     if request.method == "POST":
@@ -393,6 +480,24 @@ def intake():
             ALLOWED_VIDEO_EXTENSIONS
         )
 
+        shopify_order_number = normalize_order_number(
+            request.form.get("shopify_order_number", "")
+        )
+
+        previous_order_submissions = count_existing_submissions_for_order(
+            shopify_order_number
+        )
+
+        order_submission_number = previous_order_submissions + 1
+        order_duplicate_flag = order_submission_number > 1
+
+        order_submission_note = ""
+        if order_duplicate_flag:
+            order_submission_note = (
+                "Multiple submissions using same Shopify order number — "
+                "verify purchased quantity before completing review."
+            )
+
         form = {
             "submitted_at": datetime.utcnow().isoformat() + "Z",
             "horse_name": clean(request.form.get("horse_name", "")),
@@ -405,7 +510,12 @@ def intake():
             "age": clean(request.form.get("age", "")),
             "sex": clean(request.form.get("sex", "")),
             "location": clean(request.form.get("location", "")),
-            "shopify_order_number": clean(request.form.get("shopify_order_number", "")),
+
+            "shopify_order_number": shopify_order_number,
+            "order_submission_number": order_submission_number,
+            "previous_order_submissions": previous_order_submissions,
+            "order_duplicate_flag": order_duplicate_flag,
+            "order_submission_note": order_submission_note,
 
             "primary_question": clean(request.form.get("primary_question", "")),
             "primary_concern_rank": clean(request.form.get("primary_concern_rank", "")),
@@ -442,13 +552,31 @@ def intake():
 
         write_report(case_id, form)
 
+        # IMPORTANT:
+        # Customer goes to success page only.
+        # They do NOT see the internal case detail page.
         return redirect(url_for("success"))
 
     return render_template("index.html")
 
 
+@app.route("/success")
+def success():
+    return render_template("success.html")
+
+
+@app.route("/api/health")
+def health():
+    return jsonify({"ok": True})
+
+
+# ----------------------------
+# PROTECTED ADMIN ROUTES
+# ----------------------------
+
 @app.route("/terrain-desk")
 @app.route("/cases")
+@admin_required
 def cases():
     selected_status = request.args.get("status", "").strip()
     search_query = request.args.get("q", "").strip().lower()
@@ -482,6 +610,11 @@ def cases():
                 discipline = data.get("discipline", "")
                 primary_question = data.get("primary_question", "")
 
+                shopify_order_number = data.get("shopify_order_number", "")
+                order_submission_number = data.get("order_submission_number", "")
+                order_duplicate_flag = data.get("order_duplicate_flag", False)
+                order_submission_note = data.get("order_submission_note", "")
+
                 counts["All"] += 1
                 if case_status in counts:
                     counts[case_status] += 1
@@ -498,6 +631,9 @@ def cases():
                     primary_question,
                     case_status,
                     case_priority,
+                    shopify_order_number,
+                    str(order_submission_number),
+                    order_submission_note,
                 ]).lower()
 
                 if search_query and search_query not in haystack:
@@ -506,11 +642,16 @@ def cases():
                 rows.append({
                     "case_id": case_id,
                     "horse_name": horse_name,
+                    "owner_name": owner_name,
                     "discipline": discipline,
                     "status": case_status,
                     "priority": case_priority,
                     "primary_question": primary_question,
                     "submitted_at": data.get("submitted_at", ""),
+                    "shopify_order_number": shopify_order_number,
+                    "order_submission_number": order_submission_number,
+                    "order_duplicate_flag": order_duplicate_flag,
+                    "order_submission_note": order_submission_note,
                 })
 
     return render_template(
@@ -525,6 +666,7 @@ def cases():
 @app.route("/cases/<case_id>")
 @app.route("/cases/<case_id>/")
 @app.route("/case/<case_id>")
+@admin_required
 def case_detail(case_id):
     case_folder = os.path.join(CASE_DIR, case_id)
     case_json = os.path.join(case_folder, "case.json")
@@ -544,17 +686,20 @@ def case_detail(case_id):
 
 
 @app.route("/cases/<case_id>/uploads/<filename>")
+@admin_required
 def case_upload(case_id, filename):
     uploads_folder = os.path.join(CASE_DIR, case_id, "uploads")
     return send_from_directory(uploads_folder, filename)
 
 
 @app.route("/reports/<filename>")
+@admin_required
 def report_file(filename):
     return send_from_directory(REPORT_DIR, filename, as_attachment=True)
 
 
 @app.route("/cases/<case_id>/status", methods=["POST"])
+@admin_required
 def update_case_status(case_id):
     case_json = os.path.join(CASE_DIR, case_id, "case.json")
 
@@ -573,6 +718,7 @@ def update_case_status(case_id):
 
 
 @app.route("/cases/<case_id>/priority", methods=["POST"])
+@admin_required
 def update_case_priority(case_id):
     case_json = os.path.join(CASE_DIR, case_id, "case.json")
 
@@ -591,6 +737,7 @@ def update_case_priority(case_id):
 
 
 @app.route("/cases/<case_id>/delete", methods=["POST"])
+@admin_required
 def delete_case(case_id):
     case_folder = os.path.join(CASE_DIR, case_id)
     report_path = os.path.join(REPORT_DIR, f"{case_id}.txt")
@@ -605,6 +752,7 @@ def delete_case(case_id):
 
 
 @app.route("/cases/<case_id>/download")
+@admin_required
 def download_case(case_id):
     case_folder = os.path.join(CASE_DIR, case_id)
     uploads_folder = os.path.join(case_folder, "uploads")
@@ -636,16 +784,6 @@ def download_case(case_id):
         as_attachment=True,
         download_name=f"ETI_Case_{case_id}.zip"
     )
-
-
-@app.route("/success")
-def success():
-    return render_template("success.html")
-
-
-@app.route("/api/health")
-def health():
-    return jsonify({"ok": True})
 
 
 if __name__ == "__main__":
